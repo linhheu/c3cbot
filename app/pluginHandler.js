@@ -4,7 +4,8 @@ let semver = require("semver");
 let path = require("path");
 let sanitizer = require("sanitize-filename");
 let Logger = require("./logging");
-let { log } = new Logger("PluginHandler");
+let logger = new Logger("PluginHandler");
+let log = logger.log.bind(logger);
 let loadPackage = require("./npmHandler");
 
 class LoadPluginError extends Error {
