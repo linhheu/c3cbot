@@ -241,7 +241,7 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                     dataPath: pluginDataPath,
                     require: (pkgList => {
                         return async function require(pkgName) {
-                            if (module.builtinModules.indexOf(pkgName)) {
+                            if (require("module").builtinModules.indexOf(pkgName)) {
                                 return require(pkgName);
                             } else if (Object.prototype.hasOwnProperty.call(pkgList, pkgName)) {
                                 return loadPackage(pkgName, pkgList[pkgName]);
