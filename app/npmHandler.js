@@ -19,7 +19,6 @@ const emptyPKGJSON = '{\
 global.ensureExists(moduleDir);
 global.ensureExists(tempDir);
 
-
 let downloadPackage = async function downloadPackage(packageName, versionRange) {
     await fs.promises.writeFile(path.join(tempDir, "package.json"), emptyPKGJSON);
     try {
@@ -94,7 +93,13 @@ let checkPackageExists = async function checkPackageExists(packageName, versionR
 module.exports = async function loadPackage(packageName, versionRange) {
     for (; ;) {
         let version = await checkPackageExists(packageName, versionRange);
-        if (!version) await downloadPackage(packageName, versionRange);
+        if (!version) {
+            try {
+                await downloadPackage(packageName, versionRange);
+            } catch (_) {
+                throw new Error("No such package exists on NPM registry.");
+            }
+        }
         let rtData;
         try {
             rtData = require(path.join(moduleDir, packageName, version));

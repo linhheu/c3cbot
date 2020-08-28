@@ -5,6 +5,7 @@ let path = require("path");
 let sanitizer = require("sanitize-filename");
 let Logger = require("./logging");
 let { log } = new Logger("PluginHandler");
+let loadPackage = require("./npmHandler");
 
 class LoadPluginError extends Error {
     constructor(str, obj) {
@@ -237,7 +238,16 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                         }
                     })(pluginDataPath),
                     dataPath: pluginDataPath,
-                    
+                    require: (pkgList => {
+                        return async function require(pkgName) {
+                            if (module.builtinModules.indexOf(pkgName)) {
+                                return require(pkgName);
+                            } else if (Object.prototype.hasOwnProperty.call(pkgList, pkgName)) {
+                                return loadPackage(pkgName, pkgList[pkgName]);
+                            }
+                            throw new Error("Requested module not added to plugins.json::npmPackageList");
+                        }
+                    })(pInfo.npmPackageList)
                 });
                 global.plugins.pluginScope[pInfo.scopeName] = returnData;
             } catch (ex) {
