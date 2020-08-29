@@ -62,7 +62,7 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
         }
         let pluginInfo = zip.readAsText("plugins.json");
         let newRootDIR = "";
-        if (global.getType(pluginInfo) !== "String") {
+        if (global.getType(pluginInfo) !== "String" || !pluginInfo.length) {
             let zipEntries = zip.getEntries();
             newRootDIR = zipEntries.reduce((a, v) => {
                 let r = v.entryName.split("/")[0];
@@ -70,7 +70,7 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                 if (!a) return r;
                 if (a === r) return r;
                 return 9;
-            });
+            }, null);
             if (newRootDIR === 9) throw new LoadPluginError("plugins.json file not found", { errorCode: 2 });
             pluginInfo = zip.readAsText(`${newRootDIR}/plugins.json`);
             if (global.getType(pluginInfo) !== "String")
