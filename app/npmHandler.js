@@ -32,7 +32,7 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
                     return reject([code, signal]);
                 }
                 await fs.promises.rename(
-                    path.join(tempDir, "node_modules", packageName), 
+                    path.join(tempDir, "node_modules", packageName) + path.sep, 
                     path.join(
                         moduleDir,
                         packageName,
