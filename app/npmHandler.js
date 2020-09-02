@@ -5,17 +5,17 @@ let childProcess = require("child_process");
 
 const moduleDir = path.join(process.cwd(), ".data", "node_modules_plugins");
 const tempDir = path.join(process.cwd(), ".data", "temp_npm_pack");
-const emptyPKGJSON = '{\
-  "name": "c3cplnpm",\
-  "version": "1.0.0",\
-  "description": "",\
-  "main": "index.js",\
-  "scripts": {\
-    "test": "exit 0"\
+const emptyPKGJSON = "{\
+  \"name\": \"c3cplnpm\",\
+  \"version\": \"1.0.0\",\
+  \"description\": \"\",\
+  \"main\": \"index.js\",\
+  \"scripts\": {\
+    \"test\": \"exit 0\"\
   },\
-  "author": "",\
-  "license": "GPL-3.0"\
-}';
+  \"author\": \"\",\
+  \"license\": \"GPL-3.0\"\
+}";
 global.ensureExists(moduleDir);
 global.ensureExists(tempDir);
 
