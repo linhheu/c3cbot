@@ -4,7 +4,8 @@ let semver = require("semver");
 let path = require("path");
 let sanitizer = require("sanitize-filename");
 let Logger = require("./logging");
-let { log } = new Logger("PluginHandler");
+let logger = new Logger("PluginHandler");
+let log = logger.log.bind(logger);
 let loadPackage = require("./npmHandler");
 
 class LoadPluginError extends Error {
@@ -61,7 +62,7 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
         }
         let pluginInfo = zip.readAsText("plugins.json");
         let newRootDIR = "";
-        if (global.getType(pluginInfo) !== "String") {
+        if (global.getType(pluginInfo) !== "String" || !pluginInfo.length) {
             let zipEntries = zip.getEntries();
             newRootDIR = zipEntries.reduce((a, v) => {
                 let r = v.entryName.split("/")[0];
@@ -69,7 +70,7 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                 if (!a) return r;
                 if (a === r) return r;
                 return 9;
-            });
+            }, null);
             if (newRootDIR === 9) throw new LoadPluginError("plugins.json file not found", { errorCode: 2 });
             pluginInfo = zip.readAsText(`${newRootDIR}/plugins.json`);
             if (global.getType(pluginInfo) !== "String")
@@ -240,8 +241,8 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                     })(pluginDataPath),
                     dataPath: pluginDataPath,
                     require: (pkgList => {
-                        return async function require(pkgName) {
-                            if (module.builtinModules.indexOf(pkgName)) {
+                        return async function pluginRequire(pkgName) {
+                            if (require("module").builtinModules.indexOf(pkgName)) {
                                 return require(pkgName);
                             } else if (Object.prototype.hasOwnProperty.call(pkgList, pkgName)) {
                                 return loadPackage(pkgName, pkgList[pkgName]);
