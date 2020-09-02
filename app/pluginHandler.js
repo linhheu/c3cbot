@@ -181,8 +181,9 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
 
             let returnData = null;
             try {
+                let logger = new Logger(pInfo.name, true);
                 returnData = await onLoad({
-                    log: (new Logger(pInfo.name, true)).log,
+                    log: logger.log.bind(logger),
                     getPluginFile: (function (zip, rootDir) {
                         return function getFileInsidePlugin(filePath) {
                             if (global.getType(filePath) !== "String") return null;
