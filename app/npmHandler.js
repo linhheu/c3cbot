@@ -36,7 +36,9 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
                     path.join(
                         moduleDir,
                         packageName,
-                        (await JSON.parse(fs.promises.readFile(path.join(tempDir, "node_modules", packageName, "package.json")))).version
+                        JSON.parse(await fs.promises.readFile(path.join(tempDir, "node_modules", packageName, "package.json"), {
+                            encoding: "utf8"
+                        })).version
                     )
                 )
                 try {
