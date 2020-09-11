@@ -31,8 +31,14 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
                 if (code !== 0 && signal !== null) {
                     return reject([code, signal]);
                 }
+
+                // Uh..
+                global.ensureExists(path.join(
+                    moduleDir,
+                    packageName
+                ));
                 await fs.promises.rename(
-                    path.join(tempDir, "node_modules", packageName) + path.sep, 
+                    path.join(tempDir, "node_modules", packageName), 
                     path.join(
                         moduleDir,
                         packageName,
