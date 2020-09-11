@@ -23,6 +23,12 @@ global.ensureExists(moduleDir);
 global.ensureExists(tempDir);
 
 let downloadPackage = async function downloadPackage(packageName, versionRange) {
+    // Clean temp folder first before downloading
+    try {
+        await fs.promises.unlink(path.join(tempDir, "package.json"));
+        await fs.promises.rmdir(path.join(tempDir, "node_modules"), { recursive: true });
+    } catch (_) {}
+
     await fs.promises.writeFile(path.join(tempDir, "package.json"), emptyPKGJSON);
     try {
         await new Promise((resolve, reject) => {
