@@ -108,7 +108,9 @@ module.exports = async function loadPackage(packageName, versionRange) {
             } catch (_) {
                 throw new Error("No such package exists on NPM registry.");
             }
+            continue;
         }
+
         let rtData;
         try {
             rtData = require(path.join(moduleDir, packageName, version));
