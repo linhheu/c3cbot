@@ -32,6 +32,9 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
                     return reject([code, signal]);
                 }
 
+                // Intended wait
+                await new Promise(_ => setTimeout(_, 500));
+
                 // Uh..
                 global.ensureExists(path.join(
                     moduleDir,
@@ -47,10 +50,19 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
                         })).version
                     )
                 )
+
+                await fs.promises.rename(
+                    path.join(tempDir, "node_modules"), 
+                    path.join(
+                        moduleDir,
+                        packageName,
+                        JSON.parse(await fs.promises.readFile(path.join(tempDir, "node_modules", packageName, "package.json"), {
+                            encoding: "utf8"
+                        })).version,
+                        "node_modules"
+                    )
+                )
                 try {
-                    await fs.promises.rmdir(path.join(tempDir, "node_modules"), {
-                        recursive: true
-                    });
                     await fs.promises.unlink(path.join(tempDir, "package.json"));
                 } catch (_) {
                     return reject([null, null, _]);
