@@ -28,7 +28,8 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
         await new Promise((resolve, reject) => {
             let p = childProcess.spawn("npm", ["install", `${packageName}@${versionRange}`], {
                 cwd: tempDir,
-                shell: true
+                shell: true,
+                stdio: "inherit"
             });
             p.once("exit", async (code, signal) => {
                 if (code !== 0 && signal !== null) {
