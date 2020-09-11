@@ -2,6 +2,9 @@ let fs = require("fs");
 let path = require("path");
 let semver = require("semver");
 let childProcess = require("child_process");
+let Logging = require("./logging");
+let logger = new Logging("NPMPackageHandler");
+let log = logger.log.bind(logger);
 
 const moduleDir = path.join(process.cwd(), ".data", "node_modules_plugins");
 const tempDir = path.join(process.cwd(), ".data", "temp_npm_pack");
@@ -107,7 +110,7 @@ let checkPackageExists = async function checkPackageExists(packageName, versionR
  * Download a NPM package if not exists, then load that package.
  * 
  * @param {string} packageName Package name
- * @param {string} versionRange Version page
+ * @param {string} versionRange Version range
  * 
  * @returns {Promise<any>} module.exports of that package
  */
@@ -116,11 +119,13 @@ module.exports = async function loadPackage(packageName, versionRange) {
         let version = await checkPackageExists(packageName, versionRange);
         if (!version) {
             try {
+                log(`Downloading NPM package: ${packageName} | Range: ${versionRange}`);
                 await downloadPackage(packageName, versionRange);
+                version = await checkPackageExists(packageName, versionRange);
+                log(`Downloaded NPM package: ${packageName} | Version: ${version}`);
             } catch (_) {
                 throw new Error("No such package exists on NPM registry.");
             }
-            continue;
         }
 
         let rtData;
