@@ -50,28 +50,30 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
                     moduleDir,
                     packageName
                 ));
+
+                // Get installed version
+                let installedVersion = JSON.parse(await fs.promises.readFile(path.join(tempDir, "node_modules", packageName, "package.json"), {
+                    encoding: "utf8"
+                })).version;
+
                 await fs.promises.rename(
                     path.join(tempDir, "node_modules", packageName), 
                     path.join(
                         moduleDir,
                         packageName,
-                        JSON.parse(await fs.promises.readFile(path.join(tempDir, "node_modules", packageName, "package.json"), {
-                            encoding: "utf8"
-                        })).version
+                        installedVersion
                     )
-                )
-
+                );
                 await fs.promises.rename(
                     path.join(tempDir, "node_modules"), 
                     path.join(
                         moduleDir,
                         packageName,
-                        JSON.parse(await fs.promises.readFile(path.join(tempDir, "node_modules", packageName, "package.json"), {
-                            encoding: "utf8"
-                        })).version,
+                        installedVersion,
                         "node_modules"
                     )
-                )
+                );
+
                 try {
                     await fs.promises.unlink(path.join(tempDir, "package.json"));
                 } catch (_) {
