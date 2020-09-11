@@ -76,6 +76,9 @@ let downloadPackage = async function downloadPackage(packageName, versionRange) 
 
                 try {
                     await fs.promises.unlink(path.join(tempDir, "package.json"));
+                    try {
+                        await fs.promises.unlink(path.join(tempDir, "package-lock.json"));
+                    } catch (_) {}
                 } catch (_) {
                     return reject([null, null, _]);
                 }
