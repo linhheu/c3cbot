@@ -53,4 +53,7 @@
     await global.pluginHandler.loadAllPlugin(pluginPath);
     let loadPluginEndTime = Date.now();
     logger.log(`Plugin loading finished. (${(loadPluginEndTime - loadPluginStartTime) / 1000}s)`);
+
+    // Load interface?
+    require("./app/commandHandler.js");
 })();

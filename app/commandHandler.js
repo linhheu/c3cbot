@@ -22,55 +22,72 @@ if (!fs.existsSync(accountDataPath)) {
 }
 
 for (let iID in accountData) {
-    try {
-        let Resolver = require(path.join(process.cwd(), "app", "interface", String(accountData[iID].handler)));
-        global.interfaceList.push(new Resolver(async function commandHandler(eventType, data) {
-            switch (eventType) {
-                case "interfaceUpdate":
-                    if (data.ready) {
-                        logger.log(`Interface ${data.id} logged in as ${data.rawClient.accountName} (${data.rawClient.accountID})`);
+    if (accountData[iID].active) {
+        try {
+            let Resolver = require(path.join(process.cwd(), "app", "interface", String(accountData[iID].handler)));
+            global.interfaceList.push({
+                active: true,
+                handlerName: accountData[iID].handler,
+                handler: new Resolver(async function commandHandler(eventType, data) {
+                    switch (eventType) {
+                        case "interfaceUpdate":
+                            if (data.ready) {
+                                logger.log(`Interface ${data.id} logged in as ${data.rawClient.accountName} (${data.rawClient.accountID})`);
+                            }
+                            logger.log(`Interface ${data.id} is ${data.ready ? "now ready." : "no longer ready."}`);
+                            for (let s of global.plugins.pluginScope) {
+                                if (
+                                    global.getType(s.onInterfaceUpdate) === "Function" ||
+                                    global.getType(s.onInterfaceUpdate) === "AsyncFunction"
+                                ) {
+                                    try {
+                                        s.onInterfaceUpdate({
+                                            id: data.id,
+                                            type: data.rawClient.type,
+                                            ready: data.ready,
+                                            interfaceList: global.interfaceList
+                                        });
+                                    } catch (_) { }
+                                }
+                            }
+                            break;
+                        case "commandExec":
+                            break;
+                        default:
+                            logger.log(`Interface ${data.id} return an invalid event "${eventType}" (data: ${data.data}).`);
                     }
-                    logger.log(`Interface ${data.id} is ${data.ready ? "now ready." : "no longer ready."}`);
-                    for (let s of global.plugins.pluginScope) {
-                        if (
-                            global.getType(s.onInterfaceUpdate) === "Function" ||
-                            global.getType(s.onInterfaceUpdate) === "AsyncFunction"
-                        ) {
-                            try {
-                                s.onInterfaceUpdate({
-                                    id: data.id,
-                                    type: data.rawClient.type,
-                                    ready: data.ready,
-                                    interfaceList: global.interfaceList
-                                });
-                            } catch (_) {}
-                        }
-                    }
-                    break;
-                case "commandExec":
-                    break;
-                default:
-                    logger.log(`Interface ${data.id} return an invalid event "${eventType}" (data: ${data.data}).`);
-            }
-        }, iID, accountData[iID].loginInfo));
+                }, iID, accountData[iID].loginInfo),
+                invalidHandler: false
+            });
 
-        for (let s of global.plugins.pluginScope) {
-            if (
-                global.getType(s.onInterfaceUpdate) === "Function" ||
-                global.getType(s.onInterfaceUpdate) === "AsyncFunction"
-            ) {
-                try {
-                    s.onInterfaceUpdate({
-                        id: iID,
-                        type: global.interfaceList[iID].type,
-                        ready: global.interfaceList[iID].ready,
-                        interfaceList: global.interfaceList
-                    });
-                } catch (_) {}
+            for (let s of global.plugins.pluginScope) {
+                if (
+                    global.getType(s.onInterfaceUpdate) === "Function" ||
+                    global.getType(s.onInterfaceUpdate) === "AsyncFunction"
+                ) {
+                    try {
+                        s.onInterfaceUpdate({
+                            id: iID,
+                            type: global.interfaceList[iID].type,
+                            ready: global.interfaceList[iID].ready,
+                            interfaceList: global.interfaceList
+                        });
+                    } catch (_) { }
+                }
             }
+        } catch (_) {
+            logger.log(`Interface ${iID} point to non-existing handler "${accountData[iID].handler}".`);
+            global.interfaceList.push({
+                active: false,
+                handlerName: accountData[iID].handler,
+                invalidHandler: true
+            });
         }
-    } catch (_) {
-        logger.log(`Interface ${iID} point to non-existing handler "${accountData[iID].handler}".`);
-        global.interfaceList.push(null);
+    } else {
+        global.interfaceList.push({
+            active: false,
+            handlerName: accountData[iID].handler,
+            invalidHandler: false
+        });
     }
 }
