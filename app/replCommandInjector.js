@@ -1,14 +1,14 @@
-let os = require("os");
 let fs = require("fs");
 let path = require("path");
 
 let Logging = require("./logging");
 let loggerCMD = new Logging("InterfaceHandler");
 
-const RED = "";
-const GRAY = "";
-const GREEN = "";
-const YELLOW = "";
+const RED = "\x1B[91m";
+const GRAY = "\x1B[90m";
+const GREEN = "\x1B[92m";
+const YELLOW = "\x1B[93m";
+const WHITE = "\x1B[97m";
 
 module.exports = {
     addinterface: {
@@ -16,7 +16,7 @@ module.exports = {
         action: function (setting) {
             // Fooling ESLint, lol
             setting;
-            this.output.write(RED + "ERROR! This build of C3C doesn't have this command yet...");
+            this.output.write(RED + "ERROR! This build of C3C doesn't have this command yet..." + "\n");
         }
     },
     removeinterface: {
@@ -43,17 +43,17 @@ module.exports = {
 
             id = parseInt(id, 10);
             if (isNaN(id)) {
-                this.output.write(RED + "ERROR! You need to specify interface ID.");
+                this.output.write(RED + "ERROR! You need to specify interface ID." + "\n");
                 return;
             }
 
             if (!accountData[id]) {
-                this.output.write(RED + "ERROR! Interface ID not found.");
+                this.output.write(RED + "ERROR! Interface ID not found." + "\n");
                 return;
             }
 
             if (accountData[id].removed) {
-                this.output.write(RED + "ERROR! That interface was removed.");
+                this.output.write(RED + "ERROR! That interface was removed." + "\n");
                 return;
             }
 
@@ -64,7 +64,7 @@ module.exports = {
                 removed: true
             }
             fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
-            this.output.write(GREEN + `Removed interface ID ${id}.`);
+            this.output.write(GREEN + `Removed interface ID ${id}.` + "\n");
         }
     },
     activeinterface: {
@@ -91,12 +91,12 @@ module.exports = {
 
             id = parseInt(id, 10);
             if (isNaN(id)) {
-                this.output.write(RED + "ERROR! You need to specify interface ID.");
+                this.output.write(RED + "ERROR! You need to specify interface ID." + "\n");
                 return;
             }
 
             if (!accountData[id]) {
-                this.output.write(RED + "ERROR! Interface ID not found.");
+                this.output.write(RED + "ERROR! Interface ID not found." + "\n");
                 return;
             }
 
@@ -157,15 +157,15 @@ module.exports = {
                         }
                     }
                 } catch (_) {
-                    this.output.write(RED + "ERROR! Unknown handler name. Please remove this interface or check the version you are using.");
+                    this.output.write(RED + "ERROR! Unknown handler name. Please remove this interface or check the version you are using." + "\n");
                     return;
                 }
 
                 accountData[id].active = true;
                 fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
-                this.output.write(GREEN + `Activated interface ID ${id}.`);
+                this.output.write(GREEN + `Activated interface ID ${id}.` + "\n");
             } else {
-                this.output.write(RED + "ERROR! That interface is already activated.");
+                this.output.write(RED + "ERROR! That interface is already activated." + "\n");
             }
         }
     },
@@ -193,12 +193,12 @@ module.exports = {
 
             id = parseInt(id, 10);
             if (isNaN(id)) {
-                this.output.write(RED + "ERROR! You need to specify interface ID.");
+                this.output.write(RED + "ERROR! You need to specify interface ID." + "\n");
                 return;
             }
 
             if (!accountData[id]) {
-                this.output.write(RED + "ERROR! Interface ID not found.");
+                this.output.write(RED + "ERROR! Interface ID not found." + "\n");
                 return;
             }
 
@@ -209,9 +209,9 @@ module.exports = {
                 } catch (_) { }
                 accountData[id].active = false;
                 fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
-                this.output.write(GREEN + `Deactivated interface ID ${id}.`);
+                this.output.write(GREEN + `Deactivated interface ID ${id}.` + "\n");
             } else {
-                this.output.write(RED + "ERROR! That interface is already deactivated.");
+                this.output.write(RED + "ERROR! That interface is already deactivated." + "\n");
             }
         }
     },
@@ -220,26 +220,45 @@ module.exports = {
         action: function () {
             /** @type array */
             let interfaceList = global.interfaceList;
-            let generatedOutput = os.EOL;
+            let generatedOutput = "\n";
 
+            let stats = {
+                invalid: 0,
+                notready: 0,
+                ready: 0,
+                deactivated: 0
+            };
             for (let id in interfaceList) {
                 if (interfaceList[id].removed) continue;
 
                 if (interfaceList[id].invalidHandler) {
-                    generatedOutput += GRAY + `(ID ${id}) invalid - unknown handler ${interfaceList[id].handler}` + os.EOL;
+                    generatedOutput += GRAY + `(ID ${id}) invalid - unknown handler ${interfaceList[id].handler}` + "\n";
+                    stats.invalid++;
                     continue;
                 }
 
                 if (interfaceList[id].active) {
                     if (interfaceList[id].handler.ready) {
-                        generatedOutput += GREEN + `(ID ${id}) ${interfaceList[id].handler} - ready` + os.EOL;
+                        generatedOutput += GREEN + `(ID ${id}) ${interfaceList[id].handler} - ready` + "\n";
+                        stats.ready++;
                     } else {
-                        generatedOutput += YELLOW + `(ID ${id}) ${interfaceList[id].handler} - not ready` + os.EOL;
+                        generatedOutput += YELLOW + `(ID ${id}) ${interfaceList[id].handler} - not ready` + "\n";
+                        stats.notready++;
                     }
                 } else {
-                    generatedOutput += RED + `(ID ${id}) ${interfaceList[id].handler} - deactivated` + os.EOL;
+                    generatedOutput += RED + `(ID ${id}) ${interfaceList[id].handler} - deactivated` + "\n";
+                    stats.deactivated++;
                 }
             }
+            generatedOutput += "\n" + WHITE + "(" + 
+                GRAY + stats.invalid + " invalid" +
+                WHITE + "/" + 
+                RED + stats.deactivated + " deactivated" + 
+                WHITE + "/" + 
+                YELLOW + stats.notready + " not ready" + 
+                WHITE + "/" + 
+                GREEN + stats.ready + " ready" + 
+                WHITE + ")" + "\n";
 
             this.output.write(generatedOutput);
         }
