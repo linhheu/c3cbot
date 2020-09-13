@@ -13,13 +13,15 @@ const YELLOW = "";
 module.exports = {
     addinterface: {
         help: "Add a new interface (but not activate it) {.addinterface <handler> [extra info]}",
-        action: setting => {
-
+        action: function (setting) {
+            // Fooling ESLint, lol
+            setting;
+            this.output.write(RED + "ERROR! This build of C3C doesn't have this command yet...");
         }
     },
     removeinterface: {
         help: "Remove an interface {.removeinterface <id>}",
-        action: id => {
+        action: function (id) {
             /** @type array */
             let interfaceList = global.interfaceList;
 
@@ -67,7 +69,7 @@ module.exports = {
     },
     activeinterface: {
         help: "Activate an interface {.activateinterface <id>}",
-        action: id => {
+        action: function (id) {
             /** @type array */
             let interfaceList = global.interfaceList;
 
@@ -100,7 +102,7 @@ module.exports = {
 
             if (!accountData[id].active) {
                 interfaceList[id].active = true;
-                
+
                 // Load that interface
                 try {
                     let Resolver = require(path.join(process.cwd(), "app", "interface", String(accountData[id].handler)));
@@ -169,7 +171,7 @@ module.exports = {
     },
     deactiveinterface: {
         help: "Deactivate an interface {.deactivateinterface <id>}",
-        action: id => {
+        action: function (id) {
             /** @type array */
             let interfaceList = global.interfaceList;
 
@@ -204,7 +206,7 @@ module.exports = {
                 try {
                     interfaceList[id].handler.destroy();
                     interfaceList[id].active = false;
-                } catch (_) {}
+                } catch (_) { }
                 accountData[id].active = false;
                 fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
                 this.output.write(GREEN + `Deactivated interface ID ${id}.`);
@@ -215,7 +217,7 @@ module.exports = {
     },
     listinterface: {
         help: "Show interface list",
-        action: () => {
+        action: function () {
             /** @type array */
             let interfaceList = global.interfaceList;
             let generatedOutput = os.EOL;
