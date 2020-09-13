@@ -64,6 +64,11 @@ class SSHInterface {
                 output: this.shell.stdout
             });
 
+            this.replConsole.commands = {
+                ...this.replConsole.commands,
+                ...global.replCustomCMD
+            }
+
             // Exiting the REPL console will close the connection. 
             this.replConsole.on("close", () => {
                 client.end();

@@ -56,4 +56,11 @@
 
     // Load interface?
     require("./app/commandHandler.js");
+
+    // Get REPL custom command + inject 
+    global.replCustomCMD = require("./app/replCommandInjector");
+    global.replConsole.commands = {
+        ...global.replConsole.commands,
+        ...global.replCustomCMD
+    }
 })();
