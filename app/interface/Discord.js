@@ -34,8 +34,9 @@ module.exports = class DiscordInterface {
     };
 
     constructor(commandHandler, id, loginInfo) {
-        let { log } = new Logger(`Discord | ${Number(id)}`);
-        this.#log = log;
+        let logger = new Logger(`Discord | ${Number(id)}`);
+        let log = logger.log.bind(logger);
+        this.#log = logger.log.bind(logger);
         this.#commandHandler = commandHandler;
         this.id = Number(id);
         this.client = new Discord.Client();
@@ -43,7 +44,7 @@ module.exports = class DiscordInterface {
 
         this.client.on("ready", () => {
             this.ready = true;
-            this.#log(`Logged in as ${this.client.user.tag}${this.client.user.verified ? " (Verified)" : ""}`);
+            log(`Logged in as ${this.client.user.tag}${this.client.user.verified ? " (Verified)" : ""}`);
             this.accountID = this.client.user.id;
             this.accountName = this.client.user.tag;
 
@@ -70,7 +71,7 @@ module.exports = class DiscordInterface {
         this.client.on("error", e => {
             this.lastError = e;
             this.lastErrorTimestamp = Date.now();
-            this.#log("Error:", e);
+            log("Error:", e);
             this.ready = false;
 
             commandHandler("interfaceUpdate", { id, ready: false, rawClient: this });
