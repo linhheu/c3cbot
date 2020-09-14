@@ -64,7 +64,7 @@ module.exports = {
                             invalidHandler: false
                         });
                     } catch (ex) {
-                        this.output.write(RED + "ERROR! An error occured while parsing extra data: " + ex.message + "\n");
+                        this.output.write(RED + "ERROR! An error occured while parsing extra data: " + ex + "\n");
                     }
 
                 } catch (_) {
