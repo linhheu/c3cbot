@@ -63,7 +63,7 @@ module.exports = {
                             handlerName: handler,
                             invalidHandler: false
                         });
-                        this.output.write(GREEN + "Added interface ID " + id + "\n");
+                        this.output.write(GREEN + "Added interface ID " + (id - 1) + "\n");
                     } catch (ex) {
                         this.output.write(RED + "ERROR! An error occured while parsing extra data: " + ex + "\n");
                     }
@@ -234,7 +234,7 @@ module.exports = {
 
                 accountData[id].active = true;
                 fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
-                this.output.write(GREEN + `Activated interface ID ${id - 1}.` + "\n");
+                this.output.write(GREEN + `Activated interface ID ${id}.` + "\n");
                 this.displayPrompt();
             } else {
                 this.output.write(RED + "ERROR! That interface is already activated." + "\n");
@@ -309,7 +309,7 @@ module.exports = {
                 if (interfaceList[id].removed) continue;
 
                 if (interfaceList[id].invalidHandler) {
-                    generatedOutput += GRAY + `(ID ${id}) invalid - unknown handler ${interfaceList[id].handlerName}` + "\n";
+                    generatedOutput += GRAY + `(ID ${id}) invalid - unknown handler "${interfaceList[id].handlerName}"` + "\n";
                     stats.invalid++;
                     continue;
                 }
