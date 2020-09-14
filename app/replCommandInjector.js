@@ -51,7 +51,7 @@ module.exports = {
                             }
                         }
 
-                        accountData.push({
+                        let id = accountData.push({
                             active: false,
                             handler: handler,
                             loginInfo: parsedConfig
@@ -63,6 +63,7 @@ module.exports = {
                             handlerName: handler,
                             invalidHandler: false
                         });
+                        this.output.write(GREEN + "Added interface ID " + id + "\n");
                     } catch (ex) {
                         this.output.write(RED + "ERROR! An error occured while parsing extra data: " + ex + "\n");
                     }
@@ -168,41 +169,46 @@ module.exports = {
                 // Load that interface
                 try {
                     let Resolver = require(path.join(process.cwd(), "app", "interface", String(accountData[id].handler)));
-                    global.interfaceList[id] = {
-                        active: true,
-                        handlerName: accountData[id].handler,
-                        handler: new Resolver(async function commandHandler(eventType, data) {
-                            switch (eventType) {
-                                case "interfaceUpdate":
-                                    if (data.ready) {
-                                        loggerCMD.log(`Interface ${data.id} logged in as ${data.rawClient.accountName} (${data.rawClient.accountID})`);
-                                    }
-                                    loggerCMD.log(`Interface ${data.id} is ${data.ready ? "now ready." : "no longer ready."}`);
-                                    for (let s of global.plugins.pluginScope) {
-                                        if (
-                                            global.getType(s.onInterfaceUpdate) === "Function" ||
-                                            global.getType(s.onInterfaceUpdate) === "AsyncFunction"
-                                        ) {
-                                            try {
-                                                s.onInterfaceUpdate({
-                                                    id: data.id,
-                                                    type: data.rawClient.type,
-                                                    ready: data.ready,
-                                                    interfaceList: global.interfaceList
-                                                });
-                                            } catch (_) { }
+                    try {
+                        global.interfaceList[id] = {
+                            active: true,
+                            handlerName: accountData[id].handler,
+                            handler: new Resolver(async function commandHandler(eventType, data) {
+                                switch (eventType) {
+                                    case "interfaceUpdate":
+                                        if (data.ready) {
+                                            loggerCMD.log(`Interface ${data.id} logged in as ${data.rawClient.accountName} (${data.rawClient.accountID})`);
                                         }
-                                    }
-                                    break;
-                                case "commandExec":
-                                    break;
-                                default:
-                                    loggerCMD.log(`Interface ${data.id} return an invalid event "${eventType}" (data: ${data.data}).`);
-                            }
-                        }, id, accountData[id].loginInfo),
-                        invalidHandler: false
-                    };
-
+                                        loggerCMD.log(`Interface ${data.id} is ${data.ready ? "now ready." : "no longer ready."}`);
+                                        for (let s of global.plugins.pluginScope) {
+                                            if (
+                                                global.getType(s.onInterfaceUpdate) === "Function" ||
+                                                global.getType(s.onInterfaceUpdate) === "AsyncFunction"
+                                            ) {
+                                                try {
+                                                    s.onInterfaceUpdate({
+                                                        id: data.id,
+                                                        type: data.rawClient.type,
+                                                        ready: data.ready,
+                                                        interfaceList: global.interfaceList
+                                                    });
+                                                } catch (_) { }
+                                            }
+                                        }
+                                        break;
+                                    case "commandExec":
+                                        break;
+                                    default:
+                                        loggerCMD.log(`Interface ${data.id} return an invalid event "${eventType}" (data: ${data.data}).`);
+                                }
+                            }, id, accountData[id].loginInfo),
+                            invalidHandler: false
+                        };
+                    } catch (__) {
+                        this.output.write(RED + "ERROR! Something is preventing the interface from being activated. (invalid parameter?)" + "\n");
+                        this.displayPrompt();
+                        return;
+                    }
                     for (let s of global.plugins.pluginScope) {
                         if (
                             global.getType(s.onInterfaceUpdate) === "Function" ||
