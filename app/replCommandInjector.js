@@ -121,10 +121,14 @@ module.exports = {
             if (interfaceList[id].active) {
                 interfaceList[id].handler.destroy();
             }
+            interfaceList[id] = {
+                removed: true
+            }
             accountData[id] = {
                 removed: true
             }
             fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
+
             this.output.write(GREEN + `Removed interface ID ${id}.` + "\n");
         }
     },

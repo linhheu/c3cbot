@@ -81,7 +81,9 @@ module.exports = class DiscordInterface {
     destroy() {
         this.client.removeAllListeners();
         this.client.destroy();
-        this.ready = false;
-        this.#commandHandler("interfaceUpdate", { id: this.id, ready: false, rawClient: this });
+        if (this.ready) {
+            this.ready = false;
+            this.#commandHandler("interfaceUpdate", { id: this.id, ready: false, rawClient: this });
+        }
     }
 }
