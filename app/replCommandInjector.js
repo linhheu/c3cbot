@@ -301,21 +301,21 @@ module.exports = {
                 if (interfaceList[id].removed) continue;
 
                 if (interfaceList[id].invalidHandler) {
-                    generatedOutput += GRAY + `(ID ${id}) invalid - unknown handler ${interfaceList[id].handler}` + "\n";
+                    generatedOutput += GRAY + `(ID ${id}) invalid - unknown handler ${interfaceList[id].handlerName}` + "\n";
                     stats.invalid++;
                     continue;
                 }
 
                 if (interfaceList[id].active) {
                     if (interfaceList[id].handler.ready) {
-                        generatedOutput += GREEN + `(ID ${id}) ${interfaceList[id].handler} - ready` + "\n";
+                        generatedOutput += GREEN + `(ID ${id}) ${interfaceList[id].handlerName} - ready` + "\n";
                         stats.ready++;
                     } else {
-                        generatedOutput += YELLOW + `(ID ${id}) ${interfaceList[id].handler} - not ready` + "\n";
+                        generatedOutput += YELLOW + `(ID ${id}) ${interfaceList[id].handlerName} - not ready` + "\n";
                         stats.notready++;
                     }
                 } else {
-                    generatedOutput += RED + `(ID ${id}) ${interfaceList[id].handler} - deactivated` + "\n";
+                    generatedOutput += RED + `(ID ${id}) ${interfaceList[id].handlerName} - deactivated` + "\n";
                     stats.deactivated++;
                 }
             }

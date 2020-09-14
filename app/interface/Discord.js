@@ -13,9 +13,19 @@ module.exports = class DiscordInterface {
     lastError = null;
     lastErrorTimestamp = 0;
 
-    static configParser(args) {
-        return {
-            token: args[1]
+    static configParser(args, ifWeb) {
+        if (ifWeb) {
+            if (args["bot_token"] && args["bot_token"].length) {
+                return {
+                    token: args["bot_token"]
+                }
+            } else throw "Missing bot_token";
+        } else {
+            if (args[1] && args[1].length) {
+                return {
+                    token: args[1]
+                }
+            } else throw "Invalid extra data. Please pass bot token to the extra data argument.";
         }
     }
 
@@ -43,7 +53,7 @@ module.exports = class DiscordInterface {
         this.client.on("message", msg => {
             commandHandler("commandExec", {
                 id,
-                rawClient: this, 
+                rawClient: this,
                 rawMessage: msg,
                 data: {
                     body: msg.content,
