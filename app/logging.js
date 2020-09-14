@@ -18,12 +18,12 @@ if (global.getType(global.fileLogParams) !== "Object") {
 }
 
 module.exports = class Logging {
-    #prefix = "INTERNAL";
-    #isPlugin = false;
+    prefix = "INTERNAL";
+    isPlugin = false;
 
     constructor(prefix = "INTERNAL", isPlugin) {
-        this.#prefix = String(prefix);
-        this.#isPlugin = Boolean(isPlugin);
+        this.prefix = String(prefix);
+        this.isPlugin = Boolean(isPlugin);
     }
 
     log(...val) {
@@ -75,8 +75,8 @@ module.exports = class Logging {
                 ANSI_CARTIDGE_RETURN +
                 ANSI_COLOR_HEADER +
                 `[${currentTimeHeader}] ` +
-                (this.#isPlugin ? "[PLUGIN] " : "") +
-                `[${this.#prefix}]` +
+                (this.isPlugin ? "[PLUGIN] " : "") +
+                `[${this.prefix}]` +
                 colorFormat +
                 os.EOL
             );
@@ -86,8 +86,8 @@ module.exports = class Logging {
                 ANSI_CARTIDGE_RETURN +
                 ANSI_COLOR_HEADER +
                 `[${currentTimeHeader}]`,
-                (this.#isPlugin ? "[PLUGIN] " : "") +
-                `[${this.#prefix}]` +
+                (this.isPlugin ? "[PLUGIN] " : "") +
+                `[${this.prefix}]` +
                 colorFormat
             );
         }
@@ -162,8 +162,8 @@ module.exports = class Logging {
                 ".log"
             ),
             `[${currentTimeHeader}] ` +
-            this.#isPlugin ? "[PLUGIN] " : "" +
-            `[${this.#prefix}]` +
+            this.isPlugin ? "[PLUGIN] " : "" +
+            `[${this.prefix}]` +
             nonColorFormat +
             os.EOL
         );
@@ -174,9 +174,9 @@ module.exports = class Logging {
                 // Get the SSH terminal instance to log. 
                 global.sshTerminal[ip].log.call(
                     global.sshTerminal[ip], 
-                    this.#isPlugin, 
+                    this.isPlugin, 
                     currentTimeHeader, 
-                    this.#prefix, 
+                    this.prefix, 
                     ...val
                 );
             }
