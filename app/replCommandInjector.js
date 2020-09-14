@@ -180,7 +180,8 @@ module.exports = {
                                             loggerCMD.log(`Interface ${data.id} logged in as ${data.rawClient.accountName} (${data.rawClient.accountID})`);
                                         }
                                         loggerCMD.log(`Interface ${data.id} is ${data.ready ? "now ready." : "no longer ready."}`);
-                                        for (let s of global.plugins.pluginScope) {
+                                        for (let i in global.plugins.pluginScope) {
+                                            let s = global.plugins.pluginScope[i];
                                             if (
                                                 global.getType(s.onInterfaceUpdate) === "Function" ||
                                                 global.getType(s.onInterfaceUpdate) === "AsyncFunction"

@@ -61,7 +61,8 @@ for (let iID in accountData) {
                     invalidHandler: false
                 });
 
-                for (let s of global.plugins.pluginScope) {
+                for (let i in global.plugins.pluginScope) {
+                    let s = global.plugins.pluginScope[i];
                     if (
                         global.getType(s.onInterfaceUpdate) === "Function" ||
                         global.getType(s.onInterfaceUpdate) === "AsyncFunction"
