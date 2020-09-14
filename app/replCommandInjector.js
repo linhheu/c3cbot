@@ -14,9 +14,65 @@ module.exports = {
     addinterface: {
         help: "Add a new interface (but not activate it) {.addinterface <handler> [extra info]}",
         action: function (setting) {
-            // Fooling ESLint, lol
-            setting;
-            this.output.write(RED + "ERROR! This build of C3C doesn't have this command yet..." + "\n");
+            // Get args
+            let args = setting
+                .replace(/”/g, "\"")
+                .replace(/“/g, "\"")
+                .split(/((?:"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|\/[^/\\]*(?:\\[\S\s][^/\\]*)*\/[gimy]*(?=\s|$)|(?:\\\s|\S))+)(?=\s|$)/)
+                .filter(function (el) {
+                    return !(el == null || el == "" || el == " " || !el.replace(/\s/g, "")
+                        .length);
+                })
+                .map(function (z) {
+                    return z.replace(/"/g, "");
+                });
+
+            // Check valid handler
+            let handler = args[0];
+            if (handler) {
+                try {
+                    let Resolver = require(path.join(process.cwd(), "app", "interface", String(handler)));
+                    try {
+                        let parsedConfig = Resolver.configParser(args);
+
+                        let accountDataPath = path.join(process.cwd(), ".data", "accountData.json");
+                        let accountData = [];
+                        if (!fs.existsSync(accountDataPath)) {
+                            fs.writeFileSync(accountDataPath, "[]");
+                        } else {
+                            let rawAccountData = fs.readFileSync(accountDataPath, { encoding: "utf8" });
+                            try {
+                                let parsedAccountData = JSON.parse(rawAccountData);
+                                if (global.getType(parsedAccountData) !== "Array") throw null;
+                                if (!parsedAccountData.every(v => global.getType(v) === "Object")) throw null;
+                                accountData = parsedAccountData;
+                            } catch (_) {
+                                fs.writeFileSync(accountDataPath, "[]");
+                            }
+                        }
+
+                        accountData.push({
+                            active: false,
+                            handler: handler,
+                            loginInfo: parsedConfig
+                        });
+                        fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
+
+                        global.interfaceList.push({
+                            active: false,
+                            handlerName: handler,
+                            invalidHandler: false
+                        });
+                    } catch (ex) {
+                        this.output.write(RED + "ERROR! An error occured while parsing extra data: " + ex.message + "\n");
+                    }
+
+                } catch (_) {
+                    this.output.write(RED + "ERROR! Invalid handler." + "\n");
+                }
+            } else {
+                this.output.write(RED + "ERROR! You must specify a handler." + "\n");
+            }
             this.displayPrompt();
         }
     },
@@ -71,7 +127,7 @@ module.exports = {
             this.output.write(GREEN + `Removed interface ID ${id}.` + "\n");
         }
     },
-    activeinterface: {
+    activateinterface: {
         help: "Activate an interface {.activateinterface <id>}",
         action: function (id) {
             /** @type array */
@@ -112,7 +168,7 @@ module.exports = {
                 // Load that interface
                 try {
                     let Resolver = require(path.join(process.cwd(), "app", "interface", String(accountData[id].handler)));
-                    global.interfaceList.push({
+                    global.interfaceList[id] = {
                         active: true,
                         handlerName: accountData[id].handler,
                         handler: new Resolver(async function commandHandler(eventType, data) {
@@ -145,7 +201,7 @@ module.exports = {
                             }
                         }, id, accountData[id].loginInfo),
                         invalidHandler: false
-                    });
+                    };
 
                     for (let s of global.plugins.pluginScope) {
                         if (
@@ -178,7 +234,7 @@ module.exports = {
             }
         }
     },
-    deactiveinterface: {
+    deactivateinterface: {
         help: "Deactivate an interface {.deactivateinterface <id>}",
         action: function (id) {
             /** @type array */
@@ -263,14 +319,14 @@ module.exports = {
                     stats.deactivated++;
                 }
             }
-            generatedOutput += "\n" + WHITE + "(" + 
+            generatedOutput += "\n" + WHITE + "(" +
                 GRAY + stats.invalid + " invalid" +
-                WHITE + "/" + 
-                RED + stats.deactivated + " deactivated" + 
-                WHITE + "/" + 
-                YELLOW + stats.notready + " not ready" + 
-                WHITE + "/" + 
-                GREEN + stats.ready + " ready" + 
+                WHITE + "/" +
+                RED + stats.deactivated + " deactivated" +
+                WHITE + "/" +
+                YELLOW + stats.notready + " not ready" +
+                WHITE + "/" +
+                GREEN + stats.ready + " ready" +
                 WHITE + ")" + "\n";
 
             this.output.write(generatedOutput);

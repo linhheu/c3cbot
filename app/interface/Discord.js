@@ -13,6 +13,16 @@ module.exports = class DiscordInterface {
     lastError = null;
     lastErrorTimestamp = 0;
 
+    static configParser(args) {
+        return {
+            token: args[1]
+        }
+    }
+
+    static configList = {
+        bot_token: "string"
+    };
+
     constructor(commandHandler, id, loginInfo) {
         let { log } = new Logger(`Discord | ${Number(id)}`);
         this.#log = log;
