@@ -17,6 +17,7 @@ module.exports = {
             // Fooling ESLint, lol
             setting;
             this.output.write(RED + "ERROR! This build of C3C doesn't have this command yet..." + "\n");
+            this.displayPrompt();
         }
     },
     removeinterface: {
@@ -44,16 +45,19 @@ module.exports = {
             id = parseInt(id, 10);
             if (isNaN(id)) {
                 this.output.write(RED + "ERROR! You need to specify interface ID." + "\n");
+                this.displayPrompt();
                 return;
             }
 
             if (!accountData[id]) {
                 this.output.write(RED + "ERROR! Interface ID not found." + "\n");
+                this.displayPrompt();
                 return;
             }
 
             if (accountData[id].removed) {
                 this.output.write(RED + "ERROR! That interface was removed." + "\n");
+                this.displayPrompt();
                 return;
             }
 
@@ -92,11 +96,13 @@ module.exports = {
             id = parseInt(id, 10);
             if (isNaN(id)) {
                 this.output.write(RED + "ERROR! You need to specify interface ID." + "\n");
+                this.displayPrompt();
                 return;
             }
 
             if (!accountData[id]) {
                 this.output.write(RED + "ERROR! Interface ID not found." + "\n");
+                this.displayPrompt();
                 return;
             }
 
@@ -158,14 +164,17 @@ module.exports = {
                     }
                 } catch (_) {
                     this.output.write(RED + "ERROR! Unknown handler name. Please remove this interface or check the version you are using." + "\n");
+                    this.displayPrompt();
                     return;
                 }
 
                 accountData[id].active = true;
                 fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
                 this.output.write(GREEN + `Activated interface ID ${id}.` + "\n");
+                this.displayPrompt();
             } else {
                 this.output.write(RED + "ERROR! That interface is already activated." + "\n");
+                this.displayPrompt();
             }
         }
     },
@@ -194,11 +203,13 @@ module.exports = {
             id = parseInt(id, 10);
             if (isNaN(id)) {
                 this.output.write(RED + "ERROR! You need to specify interface ID." + "\n");
+                this.displayPrompt();
                 return;
             }
 
             if (!accountData[id]) {
                 this.output.write(RED + "ERROR! Interface ID not found." + "\n");
+                this.displayPrompt();
                 return;
             }
 
@@ -210,8 +221,10 @@ module.exports = {
                 accountData[id].active = false;
                 fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
                 this.output.write(GREEN + `Deactivated interface ID ${id}.` + "\n");
+                this.displayPrompt();
             } else {
                 this.output.write(RED + "ERROR! That interface is already deactivated." + "\n");
+                this.displayPrompt();
             }
         }
     },
@@ -261,6 +274,7 @@ module.exports = {
                 WHITE + ")" + "\n";
 
             this.output.write(generatedOutput);
+            this.displayPrompt();
         }
     }
 }
