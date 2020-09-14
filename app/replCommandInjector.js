@@ -210,7 +210,8 @@ module.exports = {
                         this.displayPrompt();
                         return;
                     }
-                    for (let s of global.plugins.pluginScope) {
+                    for (let i in global.plugins.pluginScope) {
+                        let s = global.plugins.pluginScope[i];
                         if (
                             global.getType(s.onInterfaceUpdate) === "Function" ||
                             global.getType(s.onInterfaceUpdate) === "AsyncFunction"
@@ -233,7 +234,7 @@ module.exports = {
 
                 accountData[id].active = true;
                 fs.writeFileSync(accountDataPath, JSON.stringify(accountData, null, 2));
-                this.output.write(GREEN + `Activated interface ID ${id}.` + "\n");
+                this.output.write(GREEN + `Activated interface ID ${id - 1}.` + "\n");
                 this.displayPrompt();
             } else {
                 this.output.write(RED + "ERROR! That interface is already activated." + "\n");
@@ -315,7 +316,7 @@ module.exports = {
 
                 if (interfaceList[id].active) {
                     if (interfaceList[id].handler.ready) {
-                        generatedOutput += GREEN + `(ID ${id}) ${interfaceList[id].handlerName} - ready` + "\n";
+                        generatedOutput += GREEN + `(ID ${id}) ${interfaceList[id].handlerName} - ${interfaceList[id].handler.accountName} (${interfaceList[id].handler.accountID})` + "\n";
                         stats.ready++;
                     } else {
                         generatedOutput += YELLOW + `(ID ${id}) ${interfaceList[id].handlerName} - not ready` + "\n";
