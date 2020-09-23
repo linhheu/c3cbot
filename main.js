@@ -1,6 +1,8 @@
-(async () => {
+(async () => {  
     let fs = require("fs");
     let path = require("path");
+
+    global.languageHandler = require("./app/languageHandler");
 
     Object.assign(global, require("./app/classModifier"));
 
@@ -29,7 +31,7 @@
     console.error = cError.log.bind(cError);
 
     // Output header
-    logger.log("C3CBot v1.0-beta  Copyright (C) 2020  UIRI");
+    logger.log("C3CBot v1.0-beta  Copyright (C) 2020  BadAimWeeb/UIRI");
     logger.log("This program comes with ABSOLUTELY NO WARRANTY.");
     logger.log("This is free software, and you are welcome to redistribute it under certain conditions.");
     logger.log("This program is licensed using GNU GPL version 3, see the LICENSE file for details.");
@@ -46,6 +48,10 @@
     // Creating an empty plugin folder
     let pluginPath = path.join(process.cwd(), process.env.PLUGIN_PATH);
     global.ensureExists(pluginPath);
+
+    // Required before load plugins
+    if (global.getType(global.responseResolver) !== "Object") global.responseResolver = {};
+
     // Load plugins
     global.pluginHandler = require("./app/pluginHandler");
     logger.log("Loading plugins...");
@@ -54,8 +60,11 @@
     let loadPluginEndTime = Date.now();
     logger.log(`Plugin loading finished. (${(loadPluginEndTime - loadPluginStartTime) / 1000}s)`);
 
+    // Uhh.... get command resolver?
+    global.cmdResolver = await require("./app/commandResolver.js")();
+
     // Load interface?
-    require("./app/commandHandler.js");
+    require("./app/interfaceHandler.js");
 
     // Get REPL custom command + inject 
     global.replCustomCMD = require("./app/replCommandInjector");

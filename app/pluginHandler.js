@@ -312,7 +312,8 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                 name: pInfo.name,
                 scopeName: pInfo.scopeName,
                 version: pInfo.version,
-                author: pInfo.author
+                author: pInfo.author,
+                dep: pInfo.depends || {}
             });
             log("Loaded plugin:", pInfo.name);
             return { status: 0 };
@@ -366,7 +367,7 @@ let unloadPlugin = async function unloadPlugin(name) {
         }
 
         for (let pl of global.plugins.loadedPlugins) {
-            if (pl.dep.indexOf(name) + 1) await unloadPlugin(pl.name);
+            if (pl.dep[name]) await unloadPlugin(pl.name);
         }
         delete global.plugins.pluginScope[scopeName];
         delete global.plugins.loadedPlugins[index];

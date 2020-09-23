@@ -6,12 +6,26 @@ module.exports = class DiscordInterface {
     #commandHandler = () => { };
     ready = false;
     type = "Discord";
+    static get type() {
+        return "Discord";
+    }
     accountID = "0";
     accountName = "null#0000";
-    idHeader = "DC";
+    static get idHeader() {
+        return {
+            user: "DC?U",
+            message: "DC?M",
+            thread: "DC?C",
+            server: "DC?S"
+        };
+    }
     destroyed = false;
     lastError = null;
     lastErrorTimestamp = 0;
+
+    static get configAtServer() {
+        return true;
+    }
 
     static configParser(args, ifWeb) {
         if (ifWeb) {
@@ -57,13 +71,15 @@ module.exports = class DiscordInterface {
                 rawClient: this,
                 rawMessage: msg,
                 data: {
-                    body: msg.content,
+                    content: msg.content,
                     mentions: msg.mentions,
                     attachments: msg.attachments,
-                    author: msg.author.id,
-                    messageID: msg.id,
+                    author: this.constructor.idHeader.user + "$@$" + msg.author.id,
+                    messageID: this.constructor.idHeader.message + "$@$" + msg.id,
                     isBot: msg.author.bot,
-                    noResolve: msg.author.bot || msg.system
+                    noResolve: msg.author.bot || msg.system,
+                    threadID: this.constructor.idHeader.thread + "$@$" + msg.channel.id,
+                    serverID: this.constructor.idHeader.server + "$@$" + msg.guild.id
                 }
             });
         });
@@ -85,5 +101,15 @@ module.exports = class DiscordInterface {
             this.ready = false;
             this.#commandHandler("interfaceUpdate", { id: this.id, ready: false, rawClient: this });
         }
+    }
+
+    async sendMsg(data, rawContent) {
+        let channel = await this.client.channels.fetch(data.threadID);
+        return await channel.send(data.content || "", {
+            reply: data.replyTo.user,
+            split: true, 
+            files: data.attachments,
+            ...rawContent
+        });
     }
 }

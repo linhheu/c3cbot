@@ -54,6 +54,7 @@ for (let iID in accountData) {
                                 }
                                 break;
                             case "commandExec":
+                                global.cmdResolver(data);
                                 break;
                             default:
                                 logger.log(`Interface ${data.id} return an invalid event "${eventType}" (data: ${data.data}).`);

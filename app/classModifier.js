@@ -149,4 +149,18 @@ JSON.parse = function parse(jsonString, reviver) {
     return ogParse(jsonString, r);
 }
 
-module.exports = { getType, ensureExists, findFromDir, requireFromString };
+// Split to args. oof
+let splitArgs = function splitArgs(string) {
+    return string.replace((/”/g), "\"")
+        .replace((/“/g), "\"")
+        .split(/((?:"[^"\\]*(?:\\[\S\s][^"\\]*)*"|'[^'\\]*(?:\\[\S\s][^'\\]*)*'|\/[^/\\]*(?:\\[\S\s][^/\\]*)*\/[gimy]*(?=\s|$)|(?:\\\s|\S))+)(?=\s|$)/)
+        .filter(function (el) {
+            return !(el == null || el == "" || el == " " || !el.replace(/\s/g, '')
+                .length);
+        })
+        .map(function (z) {
+            return z.replace(/"/g, "");
+        });
+}
+
+module.exports = { getType, ensureExists, findFromDir, requireFromString, splitArgs };

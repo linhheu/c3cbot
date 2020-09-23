@@ -202,6 +202,7 @@ module.exports = {
                                         }
                                         break;
                                     case "commandExec":
+                                        global.cmdResolver(data);
                                         break;
                                     default:
                                         loggerCMD.log(`Interface ${data.id} return an invalid event "${eventType}" (data: ${data.data}).`);
