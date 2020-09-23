@@ -27,19 +27,19 @@ module.exports = async () => {
         let languageList = await global.centralData.get("default", "customLang");
         /** @type {string} */
         let thisThreadPrefix = (prefixList[cmdData.id] || [])[
-            cmdData.rawClient.constructor.configAtServer ? cmdData.serverID : cmdData.threadID
+            cmdData.rawClient.constructor.configAtServer ? cmdData.data.serverID : cmdData.data.threadID
         ] || process.env.DEFAULT_COMMAND_PREFIX;
 
         let thisUserLang = 
-            (languageList[cmdData.id] || [])[cmdData.author] || 
+            (languageList[cmdData.id] || [])[cmdData.data.author] || 
             (languageList[cmdData.id] || [])[
-                cmdData.rawClient.constructor.configAtServer ? cmdData.serverID : cmdData.threadID
+                cmdData.rawClient.constructor.configAtServer ? cmdData.data.serverID : cmdData.data.threadID
             ] ||
             process.env.DEFAULT_LANGUAGE;
 
-        if (cmdData.content.startsWith(thisThreadPrefix)) {
+        if (cmdData.data.content.startsWith(thisThreadPrefix)) {
             // internal command resolver
-            let args = global.splitArgs(cmdData.content);
+            let args = global.splitArgs(cmdData.data.content);
             let command = args[0].substr(thisThreadPrefix.length);
 
             if (global.commandMapping.aliases[command]) {
@@ -50,8 +50,8 @@ module.exports = async () => {
                 cmdData.rawClient.sendMsg({
                     content: returnLang,
                     replyTo: {
-                        user: cmdData.author,
-                        message: cmdData.messageID
+                        user: cmdData.data.author,
+                        message: cmdData.data.messageID
                     }
                 });
             }
