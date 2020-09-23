@@ -52,7 +52,9 @@ module.exports = async () => {
                     replyTo: {
                         user: cmdData.data.author,
                         message: cmdData.data.messageID
-                    }
+                    },
+                    threadID: cmdData.data.threadID,
+                    serverID: cmdData.data.serverID
                 });
             }
         }
