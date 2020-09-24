@@ -79,7 +79,10 @@ module.exports = class DiscordInterface {
                     isBot: msg.author.bot,
                     noResolve: msg.author.bot || msg.system,
                     threadID: this.constructor.idHeader.thread + "$@$" + msg.channel.id,
-                    serverID: this.constructor.idHeader.server + "$@$" + msg.guild.id
+                    serverID: msg.channel.type == "dm" ? 
+                        this.constructor.idHeader.thread + "$@$" + msg.channel.id : 
+                        this.constructor.idHeader.server + "$@$" + msg.guild.id,
+                    isDM: msg.channel.type == "dm"
                 }
             });
         });
@@ -104,7 +107,7 @@ module.exports = class DiscordInterface {
     }
 
     async sendMsg(data, rawContent) {
-        let channel = await this.client.channels.fetch(data.threadID);
+        let channel = await this.client.channels.fetch(data.threadID.split("$@$")[1]);
         return await channel.send(data.content || "", {
             reply: data.replyTo.user,
             split: true, 
