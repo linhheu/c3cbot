@@ -109,7 +109,7 @@ module.exports = class DiscordInterface {
     async sendMsg(data, rawContent) {
         let channel = await this.client.channels.fetch(data.threadID.split("$@$")[1]);
         return await channel.send(data.content || "", {
-            reply: data.replyTo.user,
+            reply: data.replyTo.user.split("$@$")[1],
             split: true, 
             files: data.attachments,
             ...rawContent
