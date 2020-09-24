@@ -293,7 +293,7 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                         helpArgs: pInfo.defineCommand[cmd].helpArgs,
                         helpDesc: pInfo.defineCommand[cmd].helpDesc,
                         example: pInfo.defineCommand[cmd].example
-                    });
+                    }) - 1;
                     if (!isConflict) {
                         global.commandMapping.aliases[cmd] = {
                             pointTo: commandID,

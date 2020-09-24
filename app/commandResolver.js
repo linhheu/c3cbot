@@ -46,8 +46,7 @@ module.exports = async () => {
                 // TODO: command found
             } else {
                 let returnLang = global.languageHandler(thisUserLang, "COMMAND_NOT_FOUND");
-                console.log(returnLang);
-                console.log(cmdData.rawClient.sendMsg({
+                cmdData.rawClient.sendMsg({
                     content: returnLang,
                     replyTo: {
                         user: cmdData.data.author,
@@ -55,7 +54,7 @@ module.exports = async () => {
                     },
                     threadID: cmdData.data.threadID,
                     serverID: cmdData.data.serverID
-                }, {}));
+                }, {});
             }
         }
     }
