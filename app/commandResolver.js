@@ -12,9 +12,10 @@ if (
     global.getType(global.responseResolver.internal) !== "AsyncFunction"
 ) {
     global.responseResolver.internal = async function internalResolver(data) {
+        if (global.getType(data.data) !== "Object") throw new Error(`InternalResolver: Cannot resolve data type "${global.getType(data.data)}"`);
         return new ResolvedData({
-            content: data.content,
-            attachments: (data.attachments === "")
+            content: data.data.content,
+            attachments: (data.data.attachments === "")
         });
     }
 }
@@ -57,7 +58,49 @@ module.exports = async () => {
                 if (r.supportedPlatform.includes("*") || r.supportedPlatform.includes(cmdData.rawClient.type)) {
                     try {
                         // TODO: Send data to command and then resolve the data returned from the command.
-                        let executedCMD = await r.exec();
+                        let executedCMD = await r.exec({
+                            args: JSON.parse(JSON.stringify(args)),
+                            cmdName: command,
+                            senderID: cmdData.data.author,
+                            threadID: cmdData.data.threadID,
+                            serverID: cmdData.data.serverID,
+                            configAtServer: cmdData.rawClient.constructor.configAtServer,
+                            messageID: cmdData.data.messageID,
+                            interfaceID: cmdData.rawClient.id,
+                            rawData: cmdData
+                        });
+                        
+                        if (global.getType(executedCMD) === "Object" && global.getType(executedCMD.handler) === "String") {
+                            let comingFrom = [];
+                            let previousData = {};
+                            for (;;) {
+                                let resolver = global.responseResolver[
+                                    (previousData.handler || executedCMD.handler) === "default" ? 
+                                    process.env.DEFAULT_MESSAGE_RESOLVER : 
+                                    (previousData.handler || executedCMD.handler)
+                                ];
+                                if (global.getType(resolver) !== "Function" && global.getType(resolver) !== "AsyncFunction")
+                                    throw new Error(`There's no resolver named ${previousData.handler || executedCMD.handler}`);
+                                let returnedData = await resolver({
+                                    handler: previousData.handler || executedCMD.handler,
+                                    data: previousData.data || executedCMD.data,
+                                    comingFrom
+                                });
+                                if (returnedData instanceof ResolvedData) {
+
+                                } else if (global.getType(returnedData) === "Object" && global.getType(returnedData.handler) === "String") {
+                                    // Passthrough (Plugin -> Handler 1 -> Handler 2...)
+                                    previousData = {
+                                        handler: executedCMD.handler,
+                                        data: executedCMD.data
+                                    }
+                                    continue;
+                                }
+                                throw 
+                            }
+                        } else {
+                            return;
+                        }
                     } catch (e) {
                         returnLang = global.languageHandler(thisUserLang, "COMMAND_CRASHED").replace("${error}", e.stack);
                     }
