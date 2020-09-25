@@ -1,12 +1,21 @@
+class ResolvedData {
+    constructor(data) {
+        Object.assign(this, data);
+        this.type = "ResolvedData";
+    }
+}
+
+global.ResolvedData = ResolvedData;
+
 if (
     global.getType(global.responseResolver.internal) !== "Function" &&
     global.getType(global.responseResolver.internal) !== "AsyncFunction"
 ) {
     global.responseResolver.internal = async function internalResolver(data) {
-        return {
+        return new ResolvedData({
             content: data.content,
             attachments: (data.attachments === "")
-        }
+        });
     }
 }
 
@@ -42,20 +51,31 @@ module.exports = async () => {
             let args = global.splitArgs(cmdData.data.content);
             let command = args[0].substr(thisThreadPrefix.length);
 
+            let returnLang = "";
             if (global.commandMapping.aliases[command]) {
-                // TODO: command found
+                let r = global.commandMapping.cmdList[global.commandMapping.aliases[command].pointTo];
+                if (r.supportedPlatform.includes("*") || r.supportedPlatform.includes(cmdData.rawClient.type)) {
+                    try {
+                        // TODO: Send data to command and then resolve the data returned from the command.
+                        let executedCMD = await r.exec();
+                    } catch (e) {
+                        returnLang = global.languageHandler(thisUserLang, "COMMAND_CRASHED").replace("${error}", e.stack);
+                    }
+                } else {
+                    returnLang = global.languageHandler(thisUserLang, "UNSUPPORTED_PLATFORM_CMD").replace("${interfaceType}", cmdData.rawClient.type);
+                }
             } else {
-                let returnLang = global.languageHandler(thisUserLang, "COMMAND_NOT_FOUND");
-                cmdData.rawClient.sendMsg({
-                    content: returnLang,
-                    replyTo: {
-                        user: cmdData.data.author,
-                        message: cmdData.data.messageID
-                    },
-                    threadID: cmdData.data.threadID,
-                    serverID: cmdData.data.serverID
-                }, {});
+                returnLang = global.languageHandler(thisUserLang, "COMMAND_NOT_FOUND");
             }
+            cmdData.rawClient.sendMsg({
+                content: returnLang,
+                replyTo: {
+                    user: cmdData.data.author,
+                    message: cmdData.data.messageID
+                },
+                threadID: cmdData.data.threadID,
+                serverID: cmdData.data.serverID
+            }, {});
         }
     }
 }

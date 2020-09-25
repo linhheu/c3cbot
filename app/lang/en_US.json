@@ -1,3 +1,5 @@
 {
-    "COMMAND_NOT_FOUND": "Unknown command."
+    "COMMAND_NOT_FOUND": "Unknown command.",
+    "UNSUPPORTED_PLATFORM_CMD": "That command cannot be run in interface ${interfaceType}.",
+    "COMMAND_CRASHED": "An error occured while executing the command!\n${error}"
 }
