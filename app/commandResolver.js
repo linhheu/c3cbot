@@ -39,8 +39,47 @@ if (
                             });
                         });
                     }
-                    //TODO: support buffer
-                }))).reduce(x => x !== null) :
+                    
+                    if (item instanceof Buffer) {
+                        return Promise.resolve({
+                            attachment: item,
+                            name: Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png"
+                        });
+                    }
+                
+                    if (global.getType(item) == "Object") {
+                        if (item.attachment instanceof stream.Readable || item.attachment instanceof stream.Duplex || item.attachment instanceof stream.Transfrom) {
+                            // Converting stream to buffer
+                            return new Promise((resolve, reject) => {
+                                let d = [];
+                                item.attachment.on("data", c => {
+                                    d.push(c);
+                                });
+                            
+                                item.attachment.on("end", () => {
+                                    let resolved = d.map(c => {
+                                        if (c instanceof Buffer) return c;
+                                        return Buffer.from(c);
+                                    });
+                                    resolve({
+                                        attachment: Buffer.from(new Uint8Array(resolved.map(x => [...x]).flat(Infinity))),
+                                        name: item.name || item.attachment.name || (Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png")
+                                    });
+                                });
+                                
+                                item.attachment.on("error", reject);
+                            });
+                        }
+                        
+                        if (item.attachment instanceof Buffer) {
+                            return Promise.resolve({
+                                attachment: item.attachment,
+                                name: item.name || (Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png")
+                            });
+                        }
+                    }
+                    return Promise.resolve(null);
+                }))).filter(x => x != null) :
                 []
         });
     }
@@ -83,7 +122,6 @@ module.exports = async () => {
                 let r = global.commandMapping.cmdList[global.commandMapping.aliases[command].pointTo];
                 if (r.supportedPlatform.includes("*") || r.supportedPlatform.includes(cmdData.rawClient.type)) {
                     try {
-                        // TODO: Send data to command and then resolve the data returned from the command.
                         let executedCMD = await r.exec({
                             args: JSON.parse(JSON.stringify(args)),
                             cmdName: command,
