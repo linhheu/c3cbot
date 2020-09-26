@@ -1,3 +1,5 @@
+const stream = require("stream");
+
 class ResolvedData {
     constructor(data) {
         Object.assign(this, data);
@@ -15,7 +17,31 @@ if (
         if (global.getType(data.data) !== "Object") throw new Error(`InternalResolver: Cannot resolve data type "${global.getType(data.data)}"`);
         return new ResolvedData({
             content: data.data.content,
-            attachments: (data.data.attachments === "")
+            attachments: (global.getType(data.data.attachments) === "Array" ?
+                (await Promise.all(data.data.attachments.map(item => {
+                    if (item instanceof stream.Readable || item instanceof stream.Duplex || item instanceof stream.Transfrom) {
+                        // Converting stream to buffer
+                        return new Promise((resolve, reject) => {
+                            let d = [];
+                            item.on("data", c => {
+                                d.push(c);
+                            });
+                            
+                            item.on("end", () => {
+                                let resolved = d.map(c => {
+                                    if (c instanceof Buffer) return c;
+                                    return Buffer.from(c);
+                                });
+                                resolve({
+                                    attachment: Buffer.from(new Uint8Array(resolved.map(x => [...x]).flat(Infinity))),
+                                    name: item.name || (Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png")
+                                });
+                            });
+                        });
+                    }
+                    //TODO: support buffer
+                }))).reduce(x => x !== null) :
+                []
         });
     }
 }
@@ -87,7 +113,17 @@ module.exports = async () => {
                                     comingFrom
                                 });
                                 if (returnedData instanceof ResolvedData) {
-
+                                    cmdData.rawClient.sendMsg({
+                                        content: returnedData.content,
+                                        attachments: returnedData.attachments
+                                        replyTo: {
+                                            user: cmdData.data.author,
+                                            message: cmdData.data.messageID
+                                        },
+                                        threadID: cmdData.data.threadID,
+                                        serverID: cmdData.data.serverID
+                                    }, {});
+                                    return null;
                                 } else if (global.getType(returnedData) === "Object" && global.getType(returnedData.handler) === "String") {
                                     // Passthrough (Plugin -> Handler 1 -> Handler 2...)
                                     previousData = {
@@ -96,7 +132,7 @@ module.exports = async () => {
                                     }
                                     continue;
                                 }
-                                throw 
+                                throw new Error(`Invalid data returned from resolver ${previousData.handler || executedCMD.handler}`);
                             }
                         } else {
                             return;
