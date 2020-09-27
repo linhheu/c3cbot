@@ -1,11 +1,12 @@
-# c3cbot
+# C3CBot
 
-_An framework for building a bot._
+_Building bots makes easy!_
 
-Status: **Incomplete**
+Status: **Incomplete - Might be usable**
 
 What's left:
-* [ ] Proper command handler
+* [x] Proper command handler
+* [ ] Built-in commands (/help; /restart; /plugins; /shutdown)
 * [ ] Chathook
 * [ ] DOCS
-* [ ] Plugin Manager
+* [ ] Plugin Manager (/pm <install/uninstall/disable/enable> <plugin>
