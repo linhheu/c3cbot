@@ -1,11 +1,12 @@
 # C3CBot Plugin Developer DOCS
 
-DOCS version: 1.0.0-beta
-Last modified: 27/09/2020
+DOCS version: `1.0.0-beta`
+
+Last modified: `27/09/2020`
 
 <strong>Index:</strong>
 - [Plugin structure](#pluginstruct)
-- [plugins.json](#pluginstruct)
+- [plugins.json](#pjson)
 - [JS executable](#jsexec)
 
 <span name="pluginstruct"></span>
@@ -33,9 +34,9 @@ It has the following structure:
 Command data is an object which has the following structure:
 - [string] `scope`: The command's resolver function inside the object returned from onLoad (See [example plugin 1](https://github.com/c3cbot/c3cbot_example_plugin_1/)).
 - [Array] `compatibly`: Contain a list of chat platform that the command can resolve. Items' value are strings which are interface type or `*` (every interface type)
-- (not required) [string] helpArgs: Add information to /help. (ex. `/test <args>` if set, `/test` if not set)
-- (not required) [string] helpDesc: Add the command's description to /help.
-- (not required) [Array] example: Add examples on how to use the command. Items is strings.
+- (not required) [string] `helpArgs`: Add information to /help. (ex. `/test <args>` if set, `/test` if not set)
+- (not required) [string] `helpDesc`: Add the command's description to /help.
+- (not required) [Array] `example`: Add examples on how to use the command. Items is strings.
 
 <span name="jsexec"></span>
 ### JS executable
