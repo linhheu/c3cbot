@@ -249,7 +249,7 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                             }
                             throw new Error("Requested module not added to plugins.json::npmPackageList");
                         }
-                    })(pInfo.npmPackageList)
+                    })(pInfo.npmPackageList || {})
                 });
                 global.plugins.pluginScope[pInfo.scopeName] = returnData;
             } catch (ex) {

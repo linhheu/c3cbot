@@ -16,8 +16,8 @@ if (
     global.responseResolver.internal = async function internalResolver(data) {
         if (global.getType(data.data) !== "Object") throw new Error(`InternalResolver: Cannot resolve data type "${global.getType(data.data)}"`);
         return new ResolvedData({
-            content: data.data.content,
-            attachments: (global.getType(data.data.attachments) === "Array" ?
+            content: String(data.data.content),
+            attachments: global.getType(data.data.attachments) === "Array" ?
                 (await Promise.all(data.data.attachments.map(item => {
                     if (item instanceof stream.Readable || item instanceof stream.Duplex || item instanceof stream.Transfrom) {
                         // Converting stream to buffer
@@ -26,7 +26,7 @@ if (
                             item.on("data", c => {
                                 d.push(c);
                             });
-                            
+
                             item.on("end", () => {
                                 let resolved = d.map(c => {
                                     if (c instanceof Buffer) return c;
@@ -34,19 +34,19 @@ if (
                                 });
                                 resolve({
                                     attachment: Buffer.from(new Uint8Array(resolved.map(x => [...x]).flat(Infinity))),
-                                    name: item.name || (Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png")
+                                    name: item.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
                                 });
                             });
                         });
                     }
-                    
+
                     if (item instanceof Buffer) {
                         return Promise.resolve({
                             attachment: item,
-                            name: Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png"
+                            name: Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png"
                         });
                     }
-                
+
                     if (global.getType(item) == "Object") {
                         if (item.attachment instanceof stream.Readable || item.attachment instanceof stream.Duplex || item.attachment instanceof stream.Transfrom) {
                             // Converting stream to buffer
@@ -55,7 +55,7 @@ if (
                                 item.attachment.on("data", c => {
                                     d.push(c);
                                 });
-                            
+
                                 item.attachment.on("end", () => {
                                     let resolved = d.map(c => {
                                         if (c instanceof Buffer) return c;
@@ -63,18 +63,18 @@ if (
                                     });
                                     resolve({
                                         attachment: Buffer.from(new Uint8Array(resolved.map(x => [...x]).flat(Infinity))),
-                                        name: item.name || item.attachment.name || (Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png")
+                                        name: item.name || item.attachment.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
                                     });
                                 });
-                                
+
                                 item.attachment.on("error", reject);
                             });
                         }
-                        
+
                         if (item.attachment instanceof Buffer) {
                             return Promise.resolve({
                                 attachment: item.attachment,
-                                name: item.name || (Math.round(Math.random() * Math.pow(2*16)).toString(16) + ".png")
+                                name: item.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
                             });
                         }
                     }
@@ -87,10 +87,10 @@ if (
 
 // Top-level await isn't here yet... node 12 ffs
 module.exports = async () => {
-    if (global.getType(await global.centralData.get("default", "customPrefix")) !== "Array") 
+    if (global.getType(await global.centralData.get("default", "customPrefix")) !== "Array")
         await global.centralData.set("default", "customPrefix", []);
 
-    if (global.getType(await global.centralData.get("default", "customLang")) !== "Array") 
+    if (global.getType(await global.centralData.get("default", "customLang")) !== "Array")
         await global.centralData.set("default", "customLang", []);
 
     return async function commandResolver(cmdData) {
@@ -105,10 +105,10 @@ module.exports = async () => {
             cmdData.rawClient.constructor.configAtServer ? cmdData.data.serverID : cmdData.data.threadID
         ] || process.env.DEFAULT_COMMAND_PREFIX;
 
-        let thisUserLang = 
-            (languageList[cmdData.id] || [])[cmdData.data.author] || 
+        let thisUserLang =
+            (languageList[cmdData.id] || [])[cmdData.data.author] ||
             (languageList[cmdData.id] || [])[
-                cmdData.rawClient.constructor.configAtServer ? cmdData.data.serverID : cmdData.data.threadID
+            cmdData.rawClient.constructor.configAtServer ? cmdData.data.serverID : cmdData.data.threadID
             ] ||
             process.env.DEFAULT_LANGUAGE;
 
@@ -133,15 +133,15 @@ module.exports = async () => {
                             interfaceID: cmdData.rawClient.id,
                             rawData: cmdData
                         });
-                        
+
                         if (global.getType(executedCMD) === "Object" && global.getType(executedCMD.handler) === "String") {
                             let comingFrom = [];
                             let previousData = {};
-                            for (;;) {
+                            for (; ;) {
                                 let resolver = global.responseResolver[
-                                    (previousData.handler || executedCMD.handler) === "default" ? 
-                                    process.env.DEFAULT_MESSAGE_RESOLVER : 
-                                    (previousData.handler || executedCMD.handler)
+                                    (previousData.handler || executedCMD.handler) === "default" ?
+                                        process.env.DEFAULT_MESSAGE_RESOLVER :
+                                        (previousData.handler || executedCMD.handler)
                                 ];
                                 if (global.getType(resolver) !== "Function" && global.getType(resolver) !== "AsyncFunction")
                                     throw new Error(`There's no resolver named ${previousData.handler || executedCMD.handler}`);
@@ -153,7 +153,7 @@ module.exports = async () => {
                                 if (returnedData instanceof ResolvedData) {
                                     cmdData.rawClient.sendMsg({
                                         content: returnedData.content,
-                                        attachments: returnedData.attachments
+                                        attachments: returnedData.attachments,
                                         replyTo: {
                                             user: cmdData.data.author,
                                             message: cmdData.data.messageID
