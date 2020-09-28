@@ -3,7 +3,7 @@ const stream = require("stream");
 class ResolvedData {
     constructor(data) {
         for (let key in data) {
-            this[key] = data;
+            this[key] = data[key];
         }
         this.type = "ResolvedData";
     }
