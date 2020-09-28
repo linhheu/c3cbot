@@ -1,6 +1,6 @@
 # C3CBot Plugin Developer DOCS
 
-DOCS version: `1.0.0-beta` / Last modified: `27/09/2020`
+DOCS version: `1.0.0-beta` / Last modified: `28/09/2020`
 
 <strong>Index:</strong>
 - [Plugin structure](#pluginstruct)
@@ -69,7 +69,7 @@ Command resolver will be called when the command that the command resolver to be
   - [number] `id`: The same as `interfaceID`
   - [Interface] `rawClient`: Interface which receives the command
   - [Object] `rawMessage`: Message from the underlying library
-  - 
+- [string] `language`: User/thread language. Plugin should return the message in this language.
 
 Command resolver should return an object containing what to send to the user that has this structure:
 - [string] `handler`: The handler which you want to resolve your message (`default`, `internal` or any value other plugins provided (TODO))

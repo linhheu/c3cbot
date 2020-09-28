@@ -131,7 +131,8 @@ module.exports = async () => {
                             configAtServer: cmdData.rawClient.constructor.configAtServer,
                             messageID: cmdData.data.messageID,
                             interfaceID: cmdData.rawClient.id,
-                            rawData: cmdData
+                            rawData: cmdData,
+                            language: thisUserLang
                         });
 
                         if (global.getType(executedCMD) === "Object" && global.getType(executedCMD.handler) === "String") {
