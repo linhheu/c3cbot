@@ -2,7 +2,9 @@ const stream = require("stream");
 
 class ResolvedData {
     constructor(data) {
-        Object.assign(this, data);
+        for (let key in data) {
+            this[key] = data;
+        }
         this.type = "ResolvedData";
     }
 }
