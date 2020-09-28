@@ -170,9 +170,10 @@ module.exports = async () => {
                                 } else if (global.getType(returnedData) === "Object" && global.getType(returnedData.handler) === "String") {
                                     // Passthrough (Plugin -> Handler 1 -> Handler 2...)
                                     previousData = {
-                                        handler: executedCMD.handler,
-                                        data: executedCMD.data
+                                        handler: returnedData.handler,
+                                        data: returnedData.data
                                     }
+                                    comingFrom.push(previousData.handler || executedCMD.handler);
                                     continue;
                                 }
                                 throw new Error(`Invalid data returned from resolver ${previousData.handler || executedCMD.handler}`);
