@@ -7,6 +7,7 @@ DOCS version: `1.0.0-beta` / Last modified: `28/09/2020`
 - [plugins.json](#pjson)
 - [JS executable](#jsexec)
 - [Valid interface types](#interfaceType)
+- [Storing plugin's data](#pldata)
 
 <span name="pluginstruct"></span>
 ### Plugin structure
@@ -84,6 +85,21 @@ Command resolver should return an object containing what to send to the user tha
 <span name="interfaceType"></span>
 ### Valid interface type list
 - `Discord`
+
+<span name="pldata"></span>
+### Storing plugin's data
+
+There are 2 ways to save your plugin's data: Using `global.centralData` or save data as a file (when the data you want to store is too large, usually images)
+
+Using `global.centralData` is pretty much straightforward. In the `centralData` there are:
+- [Function] `get(string table, string key): Promise<any>`: Get the data stored in the table
+- [Function] `set(string table, string key, data): Promise<void>`: Store the data to the table
+- [Function] `remove(string table, string key): Promise<bool>`: Delete the data in the table
+- [Function] `removeTable(string table): Promise<bool>`: Delete the table and data inside it
+- [Function] `getTable(string table): Promise<Object>`: Get the table and data inside it
+
+For data that is too large (images, audio, etc...) you might want to use `readPluginDataFile()`, `writePluginDataFile()`, `removePluginDataFile()` provided when the framework call `onLoad()`. In some rare circumstances, you can use `fs` module with `dataPath` also provided in `onLoad()`.
+
 
 <hr>
 More things coming soon... Happy coding!
