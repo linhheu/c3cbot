@@ -51,7 +51,7 @@ Everything the plugin needed will pass to `onLoad` as an argument (let's name it
 - [Function] `writePluginDataFile(string fileName, string/Buffer data, string encoding): void`: Write to plugin's data file
 - [Function] `removePluginDataFile(string fileName): void`: Delete plugin's data file
 - [string] `dataPath`: Plugin's data path
-- [Function] `require(string moduleName): any`: Get NPM package's `module.exports`. Note: You must add the package to `npmPackageList` in [`plugins.json`](#pjson) to use this! (not for built-in modules through)
+- [Function] `require(string moduleName): Promise<any>`: Get NPM package's `module.exports`. Note: You must add the package to `npmPackageList` in [`plugins.json`](#pjson) to use this! (not for built-in modules through)
 - [Function] `getPlugin(string pluginName): any`: Get the data returned from `onLoad()` in `pluginName`
 
 `onLoad()` should return an object containing command resolvers. It could return nothing, but doing so will result in the plugin not providing any commands.
