@@ -71,6 +71,7 @@ Command resolver will be called when the command that the command resolver to be
   - [Interface] `rawClient`: Interface which receives the command
   - [Object] `rawMessage`: Message from the underlying library
 - [string] `language`: User/thread language. Plugin should return the message in this language.
+- [string] `content`: Message content
 
 Command resolver should return an object containing what to send to the user that has this structure:
 - [string] `handler`: The handler which you want to resolve your message (`default`, `internal` or any value other plugins provided (TODO))
