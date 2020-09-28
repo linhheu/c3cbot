@@ -249,7 +249,15 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                             }
                             throw new Error("Requested module not added to plugins.json::npmPackageList");
                         }
-                    })(pInfo.npmPackageList || {})
+                    })(pInfo.npmPackageList || {}),
+                    getPlugin: function getPluginExport(name) {
+                        let plInfo = global.plugins.loadedPlugins.find(v => v.name === name);
+                        if (!plInfo) {
+                            throw new Error("Requested plugin is not loaded");
+                        }
+
+                        return global.plugins.pluginScope[plInfo.scopeName];
+                    }
                 });
                 global.plugins.pluginScope[pInfo.scopeName] = returnData;
             } catch (ex) {

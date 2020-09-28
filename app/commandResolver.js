@@ -19,70 +19,72 @@ if (
         if (global.getType(data.data) !== "Object") throw new Error(`InternalResolver: Cannot resolve data type "${global.getType(data.data)}"`);
         return new ResolvedData({
             content: String(data.data.content),
-            attachments: global.getType(data.data.attachments) === "Array" ?
-                (await Promise.all(data.data.attachments.map(item => {
-                    if (item instanceof stream.Readable || item instanceof stream.Duplex || item instanceof stream.Transfrom) {
-                        // Converting stream to buffer
-                        return new Promise((resolve, reject) => {
-                            let d = [];
-                            item.on("data", c => {
-                                d.push(c);
-                            });
-
-                            item.on("end", () => {
-                                let resolved = d.map(c => {
-                                    if (c instanceof Buffer) return c;
-                                    return Buffer.from(c);
-                                });
-                                resolve({
-                                    attachment: Buffer.from(new Uint8Array(resolved.map(x => [...x]).flat(Infinity))),
-                                    name: item.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
-                                });
-                            });
-                        });
-                    }
-
-                    if (item instanceof Buffer) {
-                        return Promise.resolve({
-                            attachment: item,
-                            name: Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png"
-                        });
-                    }
-
-                    if (global.getType(item) == "Object") {
-                        if (item.attachment instanceof stream.Readable || item.attachment instanceof stream.Duplex || item.attachment instanceof stream.Transfrom) {
+            attachments: (
+                global.getType(data.data.attachments) === "Array" ?
+                    (await Promise.all(data.data.attachments.map(item => {
+                        if (item instanceof stream.Readable || item instanceof stream.Duplex || item instanceof stream.Transfrom) {
                             // Converting stream to buffer
                             return new Promise((resolve, reject) => {
                                 let d = [];
-                                item.attachment.on("data", c => {
+                                item.on("data", c => {
                                     d.push(c);
                                 });
 
-                                item.attachment.on("end", () => {
+                                item.on("end", () => {
                                     let resolved = d.map(c => {
                                         if (c instanceof Buffer) return c;
                                         return Buffer.from(c);
                                     });
                                     resolve({
                                         attachment: Buffer.from(new Uint8Array(resolved.map(x => [...x]).flat(Infinity))),
-                                        name: item.name || item.attachment.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
+                                        name: item.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
                                     });
                                 });
-
-                                item.attachment.on("error", reject);
                             });
                         }
 
-                        if (item.attachment instanceof Buffer) {
+                        if (item instanceof Buffer) {
                             return Promise.resolve({
-                                attachment: item.attachment,
-                                name: item.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
+                                attachment: item,
+                                name: Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png"
                             });
                         }
-                    }
-                    return Promise.resolve(null);
-                }))).filter(x => x != null) :
-                []
+
+                        if (global.getType(item) == "Object") {
+                            if (item.attachment instanceof stream.Readable || item.attachment instanceof stream.Duplex || item.attachment instanceof stream.Transfrom) {
+                                // Converting stream to buffer
+                                return new Promise((resolve, reject) => {
+                                    let d = [];
+                                    item.attachment.on("data", c => {
+                                        d.push(c);
+                                    });
+
+                                    item.attachment.on("end", () => {
+                                        let resolved = d.map(c => {
+                                            if (c instanceof Buffer) return c;
+                                            return Buffer.from(c);
+                                        });
+                                        resolve({
+                                            attachment: Buffer.from(new Uint8Array(resolved.map(x => [...x]).flat(Infinity))),
+                                            name: item.name || item.attachment.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
+                                        });
+                                    });
+
+                                    item.attachment.on("error", reject);
+                                });
+                            }
+
+                            if (item.attachment instanceof Buffer) {
+                                return Promise.resolve({
+                                    attachment: item.attachment,
+                                    name: item.name || (Math.round(Math.random() * Math.pow(2 * 16)).toString(16) + ".png")
+                                });
+                            }
+                        }
+                        return Promise.resolve(null);
+                    }))).filter(x => x != null) :
+                    []
+            )
         });
     }
 }
