@@ -1,5 +1,8 @@
 {
     "COMMAND_NOT_FOUND": "Unknown command.",
     "UNSUPPORTED_PLATFORM_CMD": "That command cannot be run in interface ${interfaceType}.",
-    "COMMAND_CRASHED": "An error occured while executing the command!\n${error}"
+    "COMMAND_CRASHED": "An error occured while executing the command!\n${error}",
+    "HELP_ARGUMENTS": "[page/command]",
+    "HELP_DESCRIPTION": "View commands available",
+    "HELP_COMMAND_NOT_FOUND": "Command/alias not found."
 }

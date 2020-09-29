@@ -97,6 +97,17 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
         let pVersion = semver.parse(pInfo.version);
         if (!pVersion)
             throw new LoadPluginError("Version must be a string that are parsable using SemVer.", { errorCode: 11 });
+
+        if (pInfo.name.toLocaleUpperCase() === "INTERNAL")
+            throw new LoadPluginError("Plugin name cannot be INTERNAL.", {
+                errorCode: 15
+            });
+        
+        if (pInfo.scopeName.toLocaleUpperCase() === "INTERNAL")
+            throw new LoadPluginError("Plugin scope cannot be INTERNAL.", {
+                errorCode: 15
+            });
+
         let existingPluginIndex = global.plugins.loadedPlugins.findIndex(v => v.name === pInfo.name);
         if (existingPluginIndex + 1)
             throw new LoadPluginError("Plugin name conflicts with loaded plugins.", {

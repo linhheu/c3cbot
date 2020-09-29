@@ -45,6 +45,9 @@
         require("./app/sshSupport");
     }
 
+    // Load built-in commands
+    require("./app/builtinCommandInjector");
+
     // Creating an empty plugin folder
     let pluginPath = path.join(process.cwd(), process.env.PLUGIN_PATH);
     global.ensureExists(pluginPath);
