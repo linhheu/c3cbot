@@ -22,7 +22,7 @@ if (
             attachments: (
                 global.getType(data.data.attachments) === "Array" ?
                     (await Promise.all(data.data.attachments.map(item => {
-                        if (item instanceof stream.Readable || item instanceof stream.Duplex || item instanceof stream.Transfrom) {
+                        if ((item instanceof stream.Readable) || (item instanceof stream.Duplex) || (item instanceof stream.Transfrom)) {
                             // Converting stream to buffer
                             return new Promise((resolve, reject) => {
                                 let d = [];
@@ -51,7 +51,7 @@ if (
                         }
 
                         if (global.getType(item) == "Object") {
-                            if (item.attachment instanceof stream.Readable || item.attachment instanceof stream.Duplex || item.attachment instanceof stream.Transfrom) {
+                            if ((item.attachment instanceof stream.Readable) || (item.attachment instanceof stream.Duplex) || (item.attachment instanceof stream.Transfrom)) {
                                 // Converting stream to buffer
                                 return new Promise((resolve, reject) => {
                                     let d = [];
