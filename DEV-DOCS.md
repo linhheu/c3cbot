@@ -1,6 +1,6 @@
 # C3CBot Plugin Developer DOCS
 
-DOCS version: `1.0.0-beta` / Last modified: `28/09/2020`
+DOCS version: `1.0.0-beta` / Last modified: `30/09/2020`
 
 <strong>Index:</strong>
 - [Plugin structure](#pluginstruct)
@@ -81,6 +81,8 @@ Command resolver should return an object containing what to send to the user tha
   - (not required) [Array] `attachments`: Items inside array could be `Buffer`, `ReadableStream` or an object following this structure:
     - [string] `name`: Filename
     - [Buffer/ReadableStream] `attachment`: File data
+  - (not required) [Object] `extraData`: Platform-specific. Usually anything that only the current platform can understand and resolve.
+    - If the platform is `Discord`, this can be set to [discord.js MessageOptions](https://discord.js.org/#/docs/main/stable/typedef/MessageOptions)
 
 <span name="interfaceType"></span>
 ### Valid interface type list

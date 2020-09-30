@@ -84,7 +84,8 @@ if (
                         return Promise.resolve(null);
                     }))).filter(x => x != null) :
                     []
-            )
+            ),
+            extraData: data.extraData || {}
         });
     }
 }
@@ -200,7 +201,7 @@ module.exports = async () => {
                 },
                 threadID: cmdData.data.threadID,
                 serverID: cmdData.data.serverID
-            }, {});
+            }, cmdData.extraData || {});
         }
     }
 }

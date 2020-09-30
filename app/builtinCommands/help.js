@@ -37,7 +37,7 @@ module.exports = {
                 let c = global.commandMapping.cmdList[id];
                 let aliases = Object.entries(global.commandMapping.aliases).filter(v => v[1].pointTo === id).map(v => v[0]);
                 return "\n"
-                    + cmdName + (c.helpArgs == null ? "" : (" " +
+                    + cmdData.prefix + cmdName + (c.helpArgs == null ? "" : " " + (
                         global.getType(c.helpArgs) === "Object" ?
                             format(c.helpArgs[cmdData.language]) || format(c.helpArgs["en_US"]) :
                             format(c.helpArgs)
