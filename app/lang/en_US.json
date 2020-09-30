@@ -4,5 +4,9 @@
     "COMMAND_CRASHED": "An error occured while executing the command!\n${error}",
     "HELP_ARGUMENTS": "[page/command]",
     "HELP_DESCRIPTION": "View commands available",
-    "HELP_COMMAND_NOT_FOUND": "Command/alias not found."
+    "HELP_COMMAND_NOT_FOUND": "Command/alias not found.",
+    "HELP_NO_DESC": "No description",
+    "HELP_EXAMPLE": "Example:",
+    "HELP_NONE": "None.",
+    "HELP_ALIAS": "Aliases:"
 }

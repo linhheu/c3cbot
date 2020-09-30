@@ -34,9 +34,9 @@ It has the following structure:
 Command data is an object which has the following structure:
 - [string] `scope`: The command's resolver function inside the object returned from onLoad (See [example plugin 1](https://github.com/c3cbot/c3cbot_example_plugin_1/)).
 - [Array<string>] `compatibly`: Contain a list of chat platform that the command can resolve. Items' value are strings which are interface type or `*` (every interface type) (see valid interface type [below](#interfaceType))
-- (not required) [string] `helpArgs`: Add information to /help. (ex. `/test <args>` if set, `/test` if not set)
-- (not required) [string] `helpDesc`: Add the command's description to /help.
-- (not required) [Array] `example`: Add examples on how to use the command. Items is strings.
+- (not required) [string/Object] `helpArgs`: Add information to /help. If the type is `object`, it must follow this structure: `<ISO 639-1 code_ISO 3166-1 alpha-2 code>: <arguments>`
+- (not required) [string/Object] `helpDesc`: Add the command's description to /help. If the type is `object`, it must follow this structure: `<ISO 639-1 code_ISO 3166-1 alpha-2 code>: <arguments>`
+- (not required) [Array] `example`: Add examples on how to use the command. Items is strings (printing prefix: "$@$").
 
 <span name="jsexec"></span>
 ### JS executable

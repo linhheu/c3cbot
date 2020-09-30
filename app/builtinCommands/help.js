@@ -5,8 +5,16 @@ module.exports = {
     supportedPlatform: ["*"],
     scope: "internal",
     exec: async function getHelp(cmdData) {
+        function format(str) {
+            str = str.replace("$@$", cmdData.prefix);
+            let r = str.replace(/\$\$INTMSG{(.+?)}\$\$/g, function replacer(_, t) {
+                return global.languageHandler(cmdData.language, t);
+            });
+            return r;
+        }
+
         async function printCMDList(page = 1) {
-            let v = "";
+            let v = "\n";
             let cmdCount = 0;
             let cmdPerPage = 50;
             let cmdListObject = global.commandMapping.cmdList.filter(x => x != null);
@@ -25,19 +33,30 @@ module.exports = {
 
         async function printCMDInfo(cmdName = "") {
             if (global.commandMapping.aliases[cmdName]) {
-                return {
-                    handler: "default",
-                    data: {
-                        content: "WIP. Coming soon."
-                    }
-                }
+                let id = global.commandMapping.aliases[cmdName].pointTo;
+                let c = global.commandMapping.cmdList[id];
+                let aliases = Object.entries(global.commandMapping.aliases).filter(v => v[1].pointTo === id).map(v => v[0]);
+                return "\n"
+                    + cmdName + (c.helpArgs == null ? "" : (
+                        global.getType(c.helpArgs) === "Object" ?
+                            format(c.helpArgs[cmdData.language]) || format(c.helpArgs["en_US"]) :
+                            format(c.helpArgs)
+                    )) + "\n"
+                    + "\n"
+                    + (c.helpDesc == null ? global.languageHandler(cmdData.language, "HELP_NO_DESC") : (
+                        global.getType(c.helpDesc) === "Object" ?
+                            format(c.helpDesc[cmdData.language]) || format(c.helpDesc["en_US"]) :
+                            format(c.helpDesc)
+                    )) + "\n"
+                    + "\n"
+                    + global.languageHandler(cmdData.language, "HELP_EXAMPLE") + " " + (
+                        global.getType(c.example) === "Array" ?
+                        c.example.reduce((a, v) => a + "- " + format(v) + "\n", "") :
+                        global.languageHandler(cmdData.language, "HELP_NONE")
+                    ) + "\n"
+                    + global.languageHandler(cmdData.language, "HELP_ALIASES") + " " + aliases.join(", ");
             } else {
-                return {
-                    handler: "default",
-                    data: {
-                        content: global.languageHandler(cmdData.language, "HELP_COMMAND_NOT_FOUND")
-                    }
-                }
+                return global.languageHandler(cmdData.language, "HELP_COMMAND_NOT_FOUND")
             }
         }
 
