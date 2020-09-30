@@ -37,12 +37,11 @@ module.exports = {
                 let c = global.commandMapping.cmdList[id];
                 let aliases = Object.entries(global.commandMapping.aliases).filter(v => v[1].pointTo === id).map(v => v[0]);
                 return "\n"
-                    + cmdName + (c.helpArgs == null ? "" : (
+                    + cmdName + (c.helpArgs == null ? "" : (" " +
                         global.getType(c.helpArgs) === "Object" ?
                             format(c.helpArgs[cmdData.language]) || format(c.helpArgs["en_US"]) :
                             format(c.helpArgs)
                     )) + "\n"
-                    + "\n"
                     + (c.helpDesc == null ? global.languageHandler(cmdData.language, "HELP_NO_DESC") : (
                         global.getType(c.helpDesc) === "Object" ?
                             format(c.helpDesc[cmdData.language]) || format(c.helpDesc["en_US"]) :
@@ -51,10 +50,10 @@ module.exports = {
                     + "\n"
                     + global.languageHandler(cmdData.language, "HELP_EXAMPLE") + " " + (
                         global.getType(c.example) === "Array" ?
-                        c.example.reduce((a, v) => a + "- " + format(v) + "\n", "") :
+                        c.example.reduce((a, v) => a + "- " + format(v) + "\n", "\n") :
                         global.languageHandler(cmdData.language, "HELP_NONE")
                     ) + "\n"
-                    + global.languageHandler(cmdData.language, "HELP_ALIASES") + " " + aliases.join(", ");
+                    + global.languageHandler(cmdData.language, "HELP_ALIAS") + " " + aliases.join(", ");
             } else {
                 return global.languageHandler(cmdData.language, "HELP_COMMAND_NOT_FOUND")
             }
