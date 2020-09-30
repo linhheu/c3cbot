@@ -156,6 +156,7 @@ module.exports = async () => {
                                 let returnedData = await resolver({
                                     handler: previousData.handler || executedCMD.handler,
                                     data: previousData.data || executedCMD.data,
+                                    extraData: previousData.extraData || executedCMD.extraData
                                     comingFrom
                                 });
                                 if (returnedData instanceof ResolvedData) {
@@ -174,7 +175,8 @@ module.exports = async () => {
                                     // Passthrough (Plugin -> Handler 1 -> Handler 2...)
                                     previousData = {
                                         handler: returnedData.handler,
-                                        data: returnedData.data
+                                        data: returnedData.data,
+                                        extraData: returnedData.extraData
                                     }
                                     comingFrom.push(previousData.handler || executedCMD.handler);
                                     continue;
