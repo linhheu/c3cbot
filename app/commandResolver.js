@@ -156,7 +156,7 @@ module.exports = async () => {
                                 let returnedData = await resolver({
                                     handler: previousData.handler || executedCMD.handler,
                                     data: previousData.data || executedCMD.data,
-                                    extraData: previousData.extraData || executedCMD.extraData
+                                    extraData: previousData.extraData || executedCMD.extraData,
                                     comingFrom
                                 });
                                 if (returnedData instanceof ResolvedData) {
