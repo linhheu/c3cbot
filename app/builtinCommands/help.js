@@ -14,20 +14,11 @@ module.exports = {
         }
 
         async function printCMDList(page = 1) {
-            let v = "\n";
-            let cmdCount = 0;
+            let v = global.languageHandler(cmdData.language, "HELP_CMD_LIST") + "\n";
             let cmdPerPage = 50;
             let cmdListObject = global.commandMapping.cmdList.filter(x => x != null);
-            for (let i = cmdPerPage * (page - 1); i < cmdPerPage; i++) {
-                let c = cmdListObject[i];
-                if (c == null) break;
-                v += (v !== "" ? " | " : "");
-                v += c.conflict ? c.namespacedCMD : c.originalCMD;
-                cmdCount++;
-                if (cmdCount >= cmdPerPage) break;
-            }
-            v += "\n";
-            v += `(${page}/${Math.ceil(cmdListObject.length / cmdPerPage)})`;
+            v += cmdListObject.map(x => x.conflict ? x.namespacedCMD : x.originalCMD).join(" | ").slice(cmdPerPage * (page - 1), cmdPerPage * page);
+            v += `\n\n(${global.languageHandler(cmdData.language, "PAGE")} ${page}/${Math.ceil(cmdListObject.length / cmdPerPage)})`;
             return v;
         }
 

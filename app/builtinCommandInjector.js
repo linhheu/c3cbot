@@ -14,4 +14,8 @@ for (let cmd of internalCMDList) {
         pointTo: id,
         scope: "internal"
     }
+    global.commandMapping.aliases["internal:" + cmd] = {
+        pointTo: id,
+        scope: "internal"
+    }
 }

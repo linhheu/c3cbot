@@ -8,5 +8,7 @@
     "HELP_NO_DESC": "No description",
     "HELP_EXAMPLE": "Example:",
     "HELP_NONE": "None.",
-    "HELP_ALIAS": "Aliases:"
+    "HELP_ALIAS": "Aliases:",
+    "HELP_CMD_LIST": "Command list:",
+    "PAGE": "Page"
 }
