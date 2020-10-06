@@ -45,6 +45,9 @@
         require("./app/sshSupport");
     }
 
+    // Get permission handler
+    Object.assign(global, await require("./app/permissionHandler")());
+
     // Load built-in commands
     require("./app/builtinCommandInjector");
 

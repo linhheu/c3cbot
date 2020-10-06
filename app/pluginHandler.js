@@ -268,7 +268,8 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                         }
 
                         return global.plugins.pluginScope[plInfo.scopeName];
-                    }
+                    },
+                    checkPermission: global.checkPermission
                 });
                 global.plugins.pluginScope[pInfo.scopeName] = returnData;
             } catch (ex) {
