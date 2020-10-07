@@ -1,6 +1,6 @@
 # C3CBot Plugin Developer DOCS
 
-DOCS version: `1.0.0-beta` / Last modified: `30/09/2020`
+DOCS version: `1.0.0-beta` / Last modified: `07/10/2020`
 
 <strong>Index:</strong>
 - [Plugin structure](#pluginstruct)
@@ -36,7 +36,9 @@ Command data is an object which has the following structure:
 - [Array<string>] `compatibly`: Contain a list of chat platform that the command can resolve. Items' value are strings which are interface type or `*` (every interface type) (see valid interface type [below](#interfaceType))
 - (not required) [string/Object] `helpArgs`: Add information to /help. If the type is `object`, it must follow this structure: `<ISO 639-1 code_ISO 3166-1 alpha-2 code>: <arguments>`
 - (not required) [string/Object] `helpDesc`: Add the command's description to /help. If the type is `object`, it must follow this structure: `<ISO 639-1 code_ISO 3166-1 alpha-2 code>: <arguments>`
-- (not required) [Array] `example`: Add examples on how to use the command. Items is strings (printing prefix: "$@$").
+- (not required) [Array] `example`: Add examples on how to use the command. Items is strings (printing prefix: "$@$", current command: "$!$").
+- (not required) [Boolean] `showDefault`: Show this command to users with permission to view not defined. Default: `true`
+- (not required) [Boolean] `execDefault`: Allow users with permission to execute not defined to execute this command. Default: `true`
 
 <span name="jsexec"></span>
 ### JS executable
@@ -54,7 +56,7 @@ Everything the plugin needed will pass to `onLoad` as an argument (let's name it
 - [string] `dataPath`: Plugin's data path
 - [Function] `require(string moduleName): Promise<any>`: Get NPM package's `module.exports`. Note: You must add the package to `npmPackageList` in [`plugins.json`](#pjson) to use this! (not for built-in modules through)
 - [Function] `getPlugin(string pluginName): any`: Get the data returned from `onLoad()` in `pluginName`
-- [Function] `checkPermission(string userID, string permission): number`: Check if user has permissions.
+- [Function] `checkPermission(string userID, string permission): Promise<number>`: Check if user has permissions.
   * If value = 0: Permission key is not defined.
   * If value = 1: The user has permission.
   * If value = 2: The user has permission from *.

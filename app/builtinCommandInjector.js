@@ -1,11 +1,11 @@
-if (global.getType(global.commandMapping) != "Object")
+if (global.getType(global.commandMapping) !== "Object")
     global.commandMapping = {
         cmdList: [],
         aliases: {},
         hook: {}
     };
 
-let internalCMDList = ["help"];
+let internalCMDList = ["help", "reload"];
 
 for (let cmd of internalCMDList) {
     let obj = require(path.join(process.cwd(), "app", "builtinCommands", cmd));

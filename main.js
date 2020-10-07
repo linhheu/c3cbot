@@ -11,8 +11,6 @@
     }
 
     require("dotenv").config();
-    ////let customEnv = require("custom-env");
-    ////customEnv.env("");
 
     global.ensureExists(path.join(__dirname, ".data"));
 
@@ -31,7 +29,7 @@
     console.error = cError.log.bind(cError);
 
     // Output header
-    logger.log("C3CBot v1.0.0-beta  Copyright (C) 2020  BadAimWeeb/UIRI");
+    logger.log("C3CBot v1.0.0-beta  Copyright (C) 2020  BadAimWeeb");
     logger.log("This program comes with ABSOLUTELY NO WARRANTY.");
     logger.log("This is free software, and you are welcome to redistribute it under certain conditions.");
     logger.log("This program is licensed using GNU GPL version 3, see the LICENSE file for details.");

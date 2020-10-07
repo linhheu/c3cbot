@@ -312,7 +312,9 @@ let loadPlugin = async function loadPlugin(file, loadAll) {
                         exec: global.plugins.pluginScope[pInfo.scopeName][pInfo.defineCommand[cmd].scope],
                         helpArgs: pInfo.defineCommand[cmd].helpArgs,
                         helpDesc: pInfo.defineCommand[cmd].helpDesc,
-                        example: pInfo.defineCommand[cmd].example
+                        example: pInfo.defineCommand[cmd].example,
+                        showDefault: pInfo.defineCommand[cmd].showDefault ? Boolean(pInfo.defineCommand[cmd].showDefault) : true,
+                        execDefault: pInfo.defineCommand[cmd].execDefault ? Boolean(pInfo.defineCommand[cmd].execDefault) : true
                     }) - 1;
                     if (!isConflict) {
                         global.commandMapping.aliases[cmd] = {

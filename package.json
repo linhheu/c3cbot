@@ -40,6 +40,7 @@
     "semver": "^7.3.2",
     "ssh2": "^0.8.9",
     "utf-8-validate": "^5.0.2",
+    "wait-for-stuff": "^1.4.0",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
