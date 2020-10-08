@@ -76,4 +76,6 @@
         ...global.replConsole.commands,
         ...global.replCustomCMD
     }
+
+    require("./app/shutdownHandler");
 })();

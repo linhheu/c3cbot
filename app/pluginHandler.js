@@ -356,9 +356,12 @@ let unloadPlugin = async function unloadPlugin(name) {
     if (index + 1) {
         let scopeName = global.plugins.loadedPlugins[index].scopeName;
         let scope = global.plugins.pluginScope[scopeName];
-        if (global.getType(scope.onUnload) === "Function") {
+        if (
+            global.getType(scope.onUnload) === "Function" || 
+            global.getType(scope.onUnload) === "AsyncFunction"
+        ) {
             try {
-                scope.onUnload();
+                await scope.onUnload();
             } catch (_) { }
         }
         // Command removing by ID

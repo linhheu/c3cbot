@@ -1,11 +1,12 @@
 # C3CBot Plugin Developer DOCS
 
-DOCS version: `1.0.0-beta` / Last modified: `07/10/2020`
+DOCS version: `1.0.0-beta` / Last modified: `08/10/2020`
 
 <strong>Index:</strong>
 - [Plugin structure](#pluginstruct)
 - [plugins.json](#pjson)
 - [JS executable](#jsexec)
+  - [onUnload()](#onUnload)
 - [Valid interface types](#interfaceType)
 - [Storing plugin's data](#pldata)
 
@@ -62,7 +63,7 @@ Everything the plugin needed will pass to `onLoad` as an argument (let's name it
   * If value = 2: The user has permission from *.
   * Negative value is the same as positive value, but with permission denied.
 
-`onLoad()` should return an object containing command resolvers. It could return nothing, but doing so will result in the plugin not providing any commands.
+`onLoad()` should return an object containing command resolvers (and `onUnload()` if you want, see [this](#onUnload)). It could return nothing, but doing so will result in the plugin not providing any commands.
 Command resolver will be called when the command that the command resolver to be in charge of is received, and will be called with an argument (let's call it `msgData`)
 
 `msgData` is an object which has the following item:
@@ -90,6 +91,27 @@ Command resolver should return an object containing what to send to the user tha
     - [Buffer/ReadableStream] `attachment`: File data
   - (not required) [Object] `extraData`: Platform-specific. Usually anything that only the current platform can understand and resolve.
     - If the platform is `Discord`, this can be set to [discord.js MessageOptions](https://discord.js.org/#/docs/main/stable/typedef/MessageOptions)
+
+<span name="onUnload"></span>
+#### onUnload()
+
+<strong>[Function/AsyncFunction] onUnload()</strong>
+
+Sometimes you want to do tasks before unload. In that case, you want to use `onUnload()`, triggered when the plugin is going to be unloaded.
+You need to return this function in return object of `onLoad()`.
+
+```js
+module.exports = async function onLoad(loadData) {
+  return {
+    onUnload: async function onUnload() {
+      // any code you want to execute here.
+    }
+  }
+}
+```
+
+The `onUnload()` function should have NO ARGUMENTS, since there's no unload reason passed to plugins. (might be added in the future)
+
 
 <span name="interfaceType"></span>
 ### Valid interface type list

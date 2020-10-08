@@ -10,4 +10,4 @@ What's left:
 * [ ] Chathook
 * [x] [DevDOCS](DEV-DOCS.md)
 * [ ] User Guide
-* [ ] Plugin Manager (/pm <install/uninstall/disable/enable> <plugin>
+* [ ] Plugin Manager (/pm <install/uninstall/disable/enable> <plugin>)
