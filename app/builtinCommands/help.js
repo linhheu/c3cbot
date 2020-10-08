@@ -46,7 +46,7 @@ module.exports = {
 
                 let pr = await global.checkPermission(cmdData.senderID, `internal.viewhelp.${c.namespacedCMDs}`);
                 if (
-                    (pr === 0 && !cmdListObject[i].showDefault) || 
+                    (pr === 0 && !c.showDefault) || 
                     pr === -1 ||
                     pr === -2
                 ) {

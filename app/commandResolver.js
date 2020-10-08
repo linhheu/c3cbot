@@ -125,6 +125,16 @@ module.exports = async () => {
             let returnLang = "";
             if (global.commandMapping.aliases[command]) {
                 let r = global.commandMapping.cmdList[global.commandMapping.aliases[command].pointTo];
+
+                let pr = await global.checkPermission(cmdData.senderID, `internal.exec.${r.namespacedCMDs}`);
+                if (
+                    (pr === 0 && !r.showDefault) || 
+                    pr === -1 ||
+                    pr === -2
+                ) {
+                    return global.languageHandler(cmdData.language, "NO_PERM_EXEC").replace("${perm}", `internal.exec.${r.namespacedCMDs}`);
+                }
+
                 if (r.supportedPlatform.includes("*") || r.supportedPlatform.includes(cmdData.rawClient.type)) {
                     try {
                         let executedCMD = await r.exec({

@@ -13,5 +13,6 @@
     "HELP_NO_PERM_VIEW": "You don't have permission (${perm}) to view this command.",
     "PAGE": "Page",
     "RELOAD_ARGUMENTS": "[plugin name/*]",
-    "RELOAD_DESCRIPTION": "Reload a/all plugin(s)"
+    "RELOAD_DESCRIPTION": "Reload a/all plugin(s)",
+    "NO_PERM_EXEC": "You don't have permission (${perm}) to execute this command."
 }
