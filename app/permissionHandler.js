@@ -24,6 +24,7 @@ module.exports = async function load() {
             group: {
                 default: {
                     permissions: [],
+                    thread: {},
                     default: true
                 },
                 operator: {
@@ -36,6 +37,12 @@ module.exports = async function load() {
                 /* 
                 "0": {
                     permissions: [],
+                    thread: {
+                        idGroup: {
+                            permissions: [],
+                            group: [""]
+                        }
+                    },
                     group: ["operator"]
                 }
                 */
@@ -46,29 +53,50 @@ module.exports = async function load() {
 
     return {
         /**
-         * Check if user has permissions.
+         * Check if user has permissions. 
+         * 
          * If value = 0: Permission key is not defined.
+         * 
          * If value = 1: The user has permission.
+         * 
          * If value = 2: The user has permission from *.
+         * 
          * Negative value is the same as positive value, but with permission denied.
+         * 
+         * Priority: Default group => Thread-specific for group => User group => Thread-specific for user group => User
          * 
          * @param {string} user User ID
          * @param {string} perm Permission key
          * 
          * @returns {number} value
          */
-        checkPermission: async function checkPermission(user = "null", perm = "null") {
+        checkPermission: async function checkPermission(user = "null", perm = "null", group = "null") {
             let pm = await global.centralStorage.get("default", "permissionManager");
-            let user = pm.user[user];
+            user = pm.user[user];
             let returnedValue = 0;
 
             // Check default group
             for (let groupName in pm.group) {
-                if (pm.group[groupName].default && global.getType(pm.group[groupName].permissions) === "Array") {
-                    for (let p of pm.group[groupName].permissions) {
-                        let pV = pResolver(p, perm);
-                        if (pV !== 0) {
-                            returnedValue = pV;
+                if (pm.group[groupName].default) {
+                    if (global.getType(pm.group[groupName].permissions) === "Array") {
+                        for (let p of pm.group[groupName].permissions) {
+                            let pV = pResolver(p, perm);
+                            if (pV !== 0) {
+                                returnedValue = pV;
+                            }
+                        }
+                    }
+
+                    // thread permission
+                    if (
+                        global.getType(pm.group[groupName].thread) === "Object" &&
+                        global.getType(pm.group[groupName].thread[group]) === "Array"
+                    ) {
+                        for (let p of pm.group[groupName].thread[group]) {
+                            let pV = pResolver(p, perm);
+                            if (pV !== 0) {
+                                returnedValue = pV;
+                            }
                         }
                     }
                 }
@@ -76,6 +104,19 @@ module.exports = async function load() {
 
             // Check user-specific permissions
             if (global.getType(user) === "Object") {
+                // Now checking thread permissions
+                if (
+                    global.getType(user.thread) === "Object" && 
+                    global.getType(user.thread[group]) === "Array"
+                ) {
+                    for (let p of user.thread[group]) {
+                        let pV = pResolver(p, perm);
+                        if (pV !== 0) {
+                            returnedValue = pV;
+                        }
+                    }
+                }
+
                 if (global.getType(user.group) === "Array") {
                     for (let groupName of user.group) {
                         if (global.getType(pm.group[groupName]) === "Object" &&

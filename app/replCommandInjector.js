@@ -345,5 +345,39 @@ module.exports = {
             this.output.write(generatedOutput);
             this.displayPrompt();
         }
+    },
+    permission: {
+        help: "Make changes to the permission system",
+        action: function permEdit(cmd) {
+            let args = global.splitArgs(cmd);
+            let generatedOutput = "";
+            switch (String(args[0]).toLocaleLowerCase()) {
+                case "group":
+                    switch (String(args[1]).toLocaleLowerCase()) {
+                        case "add":
+                            break;
+                        case "remove":
+                            break;
+                        case "default":
+                            break;
+                        case "perm":
+                            break;
+                        case "help":
+                            break;
+                    }
+                    break;
+                case "user":
+                    break;
+                case "help":
+                    generatedOutput = WHITE + "Available commands:";
+                    generatedOutput += "\n\t" + ".permission user: Change user's permissions"
+                    generatedOutput += "\n\t" + ".permission group: Change group's permissions"
+                    generatedOutput += "\n\t" + ".permission help [subcommand]: Show this help"
+                default:
+                    generatedOutput = RED + "Unknown parameter. Type `.permission help` to get help.";
+            }
+            this.output.write(generatedOutput + "\n");
+            this.displayPrompt();
+        }
     }
 }

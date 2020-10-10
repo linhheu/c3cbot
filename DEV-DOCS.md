@@ -62,6 +62,7 @@ Everything the plugin needed will pass to `onLoad` as an argument (let's name it
   * If value = 1: The user has permission.
   * If value = 2: The user has permission from *.
   * Negative value is the same as positive value, but with permission denied.
+  * Priority: Default group => Thread-specific for group => User group => Thread-specific for user group => User
 
 `onLoad()` should return an object containing command resolvers (and `onUnload()` if you want, see [this](#onUnload)). It could return nothing, but doing so will result in the plugin not providing any commands.
 Command resolver will be called when the command that the command resolver to be in charge of is received, and will be called with an argument (let's call it `msgData`)
