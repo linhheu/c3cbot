@@ -1,0 +1,50 @@
+img.logo {
+    height: 10vw;
+    width: 10vw;
+    
+}
+
+.login {
+    height: auto;
+    width: 30%;
+    border: 2px solid black;
+    text-align: center;
+    margin: auto;
+    position:absolute;
+    top: 20%;
+    left: 35%;
+    position: fixed;
+    background-color: rgb(173,216,230,0.4);
+}
+
+.h1 {
+    font-size: 3vw;
+}
+
+.h2 {
+    font-size: 1vw;
+}
+
+input {
+    height: 3vw;
+    font-size: 1.4vw;
+    width: 90%;
+    border-radius: 5px;
+    margin-top: 0.5vh;
+}
+
+body {
+    justify-content: center;
+}
+
+.butlog>input {
+    background-color: #9606FE;
+}
+
+.butlog {
+    margin-bottom: 30px;
+}
+
+.failed {
+    color: red;
+}

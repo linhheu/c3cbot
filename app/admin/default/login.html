@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/vue.js"></script>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/login.css">
+    <title>C3CBot Admin Control Interface - Login</title>
+</head>
+
+<body>
+    <div class="login">
+        <form action="/" method="POST">
+            <div style="margin: 10px 0">
+                <img class="logo" src="/image/logo.svg" alt="logoc3cbot"><br>
+                <span class="h1">C3CBOT</span>
+            </div>
+            <div class="login1">
+                <input type="text" name="serverIP" placeholder="Server IP" disabled>
+            </div>
+            <div class="login1">
+                <input type="password" name="password" placeholder="Password">
+            </div>
+            <div class="butlog">
+                <input type="submit" value="Login">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: 'div > input',
+            data: {
+                lang: {
+                    login: "Login",
+                    serverip: "Server IP",
+                    password: "Password"
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
