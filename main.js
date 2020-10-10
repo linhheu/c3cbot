@@ -77,5 +77,9 @@
         ...global.replCustomCMD
     }
 
+    // Shutdown handler
     require("./app/shutdownHandler");
+
+    // ACI (Admin Control Interface)
+    require("./app/admin/server");
 })();

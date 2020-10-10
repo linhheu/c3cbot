@@ -12,17 +12,6 @@
     var fs = require("fs");
     var path = require("path");
 
-    //Heroku: Run a dummy HTTP server. Why? https://i.imgur.com/KgsYleA.png
-    //This dummy will have another purpose. Coming soon...
-    var herokuCompatible = http.createServer(function (req, res) {
-        res.writeHead(200, "OK", {
-            "Content-Type": "text/plain"
-        });
-        res.write("This is just a dummy HTTP server to fool Heroku. https://i.imgur.com/KgsYleA.png \r\nC3CBot - https://github.com/lequanglam/c3c");
-        res.end();
-    });
-    herokuCompatible.listen(process.env.PORT || 0, "0.0.0.0");
-
     function spawn(cmd, arg) {
         return new Promise(resolve => {
             var npmProcess = childProcess.spawn(cmd, arg, {
