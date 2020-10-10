@@ -1,6 +1,6 @@
 # C3CBot Plugin Developer DOCS
 
-DOCS version: `1.0.0-beta` / Last modified: `08/10/2020`
+DOCS version: `1.0.0-beta` / Last modified: `10/10/2020`
 
 <strong>Index:</strong>
 - [Plugin structure](#pluginstruct)
