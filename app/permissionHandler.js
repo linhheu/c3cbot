@@ -18,7 +18,7 @@ function pResolver(ref = "", perm = "") {
 }
 
 module.exports = async function load() {
-    let pm = await global.centralStorage.get("default", "permissionManager");
+    let pm = await global.centralData.get("default", "permissionManager");
     if (global.getType(pm) !== "Object") {
         pm = {
             group: {
@@ -48,7 +48,7 @@ module.exports = async function load() {
                 */
             }
         }
-        await global.centralStorage.set("default", "permissionManager", pm);
+        await global.centralData.set("default", "permissionManager", pm);
     }
 
     return {
@@ -71,7 +71,7 @@ module.exports = async function load() {
          * @returns {number} value
          */
         checkPermission: async function checkPermission(user = "null", perm = "null", group = "null") {
-            let pm = await global.centralStorage.get("default", "permissionManager");
+            let pm = await global.centralData.get("default", "permissionManager");
             user = pm.user[user];
             let returnedValue = 0;
 
