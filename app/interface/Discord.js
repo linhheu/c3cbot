@@ -27,6 +27,8 @@ module.exports = class DiscordInterface {
         return true;
     }
 
+    static Discord = Discord;
+
     static configParser(args, ifWeb) {
         if (ifWeb) {
             if (args["bot_token"] && args["bot_token"].length) {
