@@ -348,7 +348,7 @@ module.exports = {
     },
     permission: {
         help: "Make changes to the permission system",
-        action: function permEdit(cmd) {
+        action: async function permEdit(cmd) {
             let args = global.splitArgs(cmd);
             let generatedOutput = "";
             switch (String(args[0]).toLocaleLowerCase()) {

@@ -42,6 +42,7 @@ app.post("/", function checkLogin(req, res) {
 
         validToken.push(token);
         res.cookie("authToken", token);
+        log(`${req.ip} logged in (token=${token})`)
         res.redirect("/control/");
     } else {
         res.status(400);
@@ -59,7 +60,7 @@ app.use("/control", function checkCookie(req, res, next) {
         res.redirect("/");
     }
 });
-app.use("/control", express.static("./app/admin/default/control"));
+app.use("/control", express.static(path.join(process.cwd(), "./app/admin/default/control")));
 
 // WebSocket. Interesting... 
 let wsServer = new WebSocket.Server({ noServer: true });
