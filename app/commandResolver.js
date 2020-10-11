@@ -85,7 +85,7 @@ if (
                     }))).filter(x => x != null) :
                     []
             ),
-            extraData: data.extraData || {}
+            extraData: data.data.extraData || {}
         });
     }
 }
