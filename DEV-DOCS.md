@@ -11,7 +11,7 @@ DOCS version: `1.0.0-beta` / Last modified: `10/10/2020`
 - [Storing plugin's data](#pldata)
 
 <span name="pluginstruct"></span>
-### Plugin structure
+### Plugin structure (type A)
 
 A plugin is just a ZIP file that contain the following:
 - `plugins.json` ([see below](#pjson))

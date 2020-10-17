@@ -1,18 +1,22 @@
-let AdmZip = require("adm-zip");
 let fs = require("fs");
-let semver = require("semver");
-let path = require("path");
-let sanitizer = require("sanitize-filename");
 let Logger = require("./logging");
 let logger = new Logger("PluginHandler");
 let log = logger.log.bind(logger);
-let loadPackage = require("./npmHandler");
+
 
 class LoadPluginError extends Error {
     constructor(str, obj) {
         super(str);
         Object.assign(this, obj);
     }
+}
+
+async function readFirstNBytes(path, n) {
+    const chunks = [];
+    for await (let chunk of fs.createReadStream(path, { start: 0, end: n })) {
+        chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
 }
 
 if (global.getType(global.plugins) != "Object")
@@ -52,302 +56,30 @@ let sortPass2 = function sortPass2() {
     });
 }
 
-let loadPlugin = async function loadPlugin(file, loadAll) {
-    if (fs.existsSync(file)) {
-        let zip = null;
-        try {
-            zip = new AdmZip(file);
-        } catch (_) {
-            throw new LoadPluginError("Invalid format (not a ZIP-compatible file)", { errorCode: 1 });
-        }
-        let pluginInfo = zip.readAsText("plugins.json");
-        let newRootDIR = "";
-        if (global.getType(pluginInfo) !== "String" || !pluginInfo.length) {
-            let zipEntries = zip.getEntries();
-            newRootDIR = zipEntries.reduce((a, v) => {
-                let r = v.entryName.split("/")[0];
-                if (r.length === 0) return 9;
-                if (!a) return r;
-                if (a === r) return r;
-                return 9;
-            }, null);
-            if (newRootDIR === 9) throw new LoadPluginError("plugins.json file not found", { errorCode: 2 });
-            pluginInfo = zip.readAsText(`${newRootDIR}/plugins.json`);
-            if (global.getType(pluginInfo) !== "String")
-                throw new LoadPluginError("plugins.json file not found", { errorCode: 2 });
-        }
-        let pInfo = null;
-        try {
-            pInfo = JSON.parse(pluginInfo);
-        } catch (e) {
-            throw new LoadPluginError("Malformed JSON data in plugins.json.", { errorCode: 3 });
-        }
+let loadPluginTypeA = require("./pluginTypeHandler/A");
 
-        // Check for plugin parameters
-        if (global.getType(pInfo.name) !== "String")
-            throw new LoadPluginError("Plugin name must be a string.", { errorCode: 6 });
-        if (sanitizer(pInfo.name).length === 0)
-            throw new LoadPluginError("Plugin name containing only invalid character.", { errorCode: 16 });
-        if (global.getType(pInfo.execFile) !== "String")
-            throw new LoadPluginError("Executable file path must be a string.", { errorCode: 7 });
-        if (global.getType(pInfo.scopeName) !== "String")
-            throw new LoadPluginError("Plugin scope name must be a string.", { errorCode: 8 });
-        if (global.getType(pInfo.version) !== "String")
-            throw new LoadPluginError("Version must be a string that are parsable using SemVer.", { errorCode: 11 });
-        let pVersion = semver.parse(pInfo.version);
-        if (!pVersion)
-            throw new LoadPluginError("Version must be a string that are parsable using SemVer.", { errorCode: 11 });
+let loadPlugin = async function loadPlugin(fileDir, loadAll) {
+    if (fs.existsSync(fileDir)) {
+        let fileInfo = await fs.promises.stat(fileDir);
+        if (fileInfo.isDirectory()) {
+            // Type B
+            throw new LoadPluginError("Type B (directory) plugin is currently not supported.");
+        } else if (fileInfo.isFile()) {
+            let header = (await readFirstNBytes(fileDir, 512)).toString("utf8");
+            if (header.startsWith("\x04\x03\x4b\x50")) {
+                // Type A
+                return await loadPluginTypeA(fileDir, loadAll);
+            }
 
-        if (pInfo.name.toLocaleUpperCase() === "INTERNAL")
-            throw new LoadPluginError("Plugin name cannot be INTERNAL.", {
-                errorCode: 15
-            });
-        
-        if (pInfo.scopeName.toLocaleUpperCase() === "INTERNAL")
-            throw new LoadPluginError("Plugin scope cannot be INTERNAL.", {
-                errorCode: 15
-            });
+            if (header.startsWith("C3CBot Encrypted Plugin - Type C (public)\0\r\n")) {
+                // Type C
+                throw new LoadPluginError("Type C (encrypted) plugin is currently not supported.");
+            }
 
-        let existingPluginIndex = global.plugins.loadedPlugins.findIndex(v => v.name === pInfo.name);
-        if (existingPluginIndex + 1)
-            throw new LoadPluginError("Plugin name conflicts with loaded plugins.", {
-                errorCode: 9,
-                existingPluginPath: global.plugins.loadedPlugins[existingPluginIndex].url
-            });
-        existingPluginIndex = global.plugins.loadedPlugins.findIndex(v => v.scopeName === pInfo.scopeName);
-        if (existingPluginIndex + 1)
-            throw new LoadPluginError("Plugin scope name conflicts with loaded plugins.", {
-                errorCode: 10,
-                existingPluginPath: global.plugins.loadedPlugins[existingPluginIndex].url
-            });
-
-        // Check for depends, if missing then add to pass 2
-        if (global.getType(pInfo.depends) === "Object") {
-            for (let dPlName in pInfo.depends) {
-                let indexDPlName = global.plugins.loadedPlugins.findIndex(v => v.name === dPlName);
-                let version = pInfo.depends[dPlName];
-                if (indexDPlName + 1) {
-                    let lVersion = global.plugins.loadedPlugins[indexDPlName].version;
-                    // Plugin found, check the version next
-                    if (!semver.satisfies(lVersion, String(version)))
-                        throw new LoadPluginError(
-                            `Expected version range ${String(version)} of "${dPlName}", instead got version ${lVersion}`,
-                            {
-                                errorCode: 5,
-                                loadedVersion: lVersion,
-                                requiredVersionRange: String(version),
-                                pluginName: dPlName
-                            }
-                        );
-                } else {
-                    // Plugin isn't loaded or not found
-                    if (loadAll) {
-                        if (global.tempLoadPass2.findIndex(v => v.url !== file) === -1) {
-                            global.tempLoadPass2.push({
-                                url: file,
-                                name: pInfo.name,
-                                depends: pInfo.depends
-                            });
-                            sortPass2();
-                        }
-                        return { status: 1 };
-                    } else {
-                        throw new LoadPluginError(
-                            `A required dependency for this plugin was not found. (${dPlName} [${version}])`,
-                            {
-                                errorCode: 4,
-                                requiredVersionRange: String(version),
-                                pluginName: dPlName
-                            }
-                        );
-                    }
-                }
+            if (header.startsWith("C3CBot Encrypted Plugin - Type D (machine-specific)\0\r\n")) {
+                throw new LoadPluginError("Type D (encrypted machine-specific) plugin is currently not supported.");
             }
         }
-
-        // Great, now execute the executable
-        let resolvedExecPath = newRootDIR.length ? `${newRootDIR}/${pInfo.execFile}` : pInfo.execFile;
-        let executable = zip.readAsText(resolvedExecPath);
-        if (global.getType(executable) === "String") {
-            let onLoad = null;
-            try {
-                onLoad = global.requireFromString(executable, resolvedExecPath);
-                if (
-                    global.getType(onLoad) !== "Function" &&
-                    global.getType(onLoad) !== "AsyncFunction"
-                ) throw new LoadPluginError("module.exports of executable code is not a Function/AsyncFunction", {
-                    errorCode: 14
-                });
-            } catch (ex) {
-                throw new LoadPluginError("Malformed JavaScript code in executable file.", {
-                    errorCode: 13,
-                    error: ex
-                })
-            }
-
-            // Add the fricking ZIP handler first
-            global.plugins.zipHandler[pInfo.scopeName] = zip;
-            // Creating a folder to store plugin's data
-            let pluginDataPath = path.join(process.cwd(), process.env.PLUGIN_DATA_PATH, sanitizer(pInfo.name));
-            global.ensureExists(pluginDataPath, 0o666);
-
-            let returnData = null;
-            try {
-                let logger = new Logger(pInfo.name, true);
-                returnData = await onLoad({
-                    log: logger.log.bind(logger),
-                    getPluginFile: (function (zip, rootDir) {
-                        return function getFileInsidePlugin(filePath) {
-                            if (global.getType(filePath) !== "String") return null;
-                            let absoluteFilePath = path.posix.join("/", filePath);
-                            return zip.readFile(rootDir + absoluteFilePath);
-                        }
-                    })(zip, newRootDIR),
-                    getPluginDirectory: (function (zip, rootDir) {
-                        return function getPluginDirectory(dir, recursive) {
-                            if (global.getType(dir) !== "String") return null;
-                            let absoluteFilePath = rootDir + path.posix.join("/", dir);
-                            let zipListing = zip.getEntries()
-                                .filter(v => {
-                                    let n = v.entryName;
-                                    let pass1 = n.startsWith(absoluteFilePath);
-                                    let pass2 = (n.split("/").length == dir.split("/").length) || recursive;
-                                    return pass1 && pass2
-                                })
-                                .map(v => v.entryName);
-                            return zipListing;
-                        }
-                    })(zip, newRootDIR),
-                    readPluginDataFile: (function (rootData) {
-                        return function readPluginDataFile(filePath, encoding) {
-                            if (global.getType(filePath) !== "String") return null;
-                            let relativeFilePath = path.join("/", filePath);
-                            let absoluteFilePath = path.join(rootData, relativeFilePath);
-                            try {
-                                return fs.readFileSync(absoluteFilePath, {
-                                    encoding
-                                });
-                            } catch (e) {
-                                return null;
-                            }
-                        }
-                    })(pluginDataPath),
-                    writePluginDataFile: (function (rootData) {
-                        return function writePluginDataFile(filePath, data, encoding) {
-                            if (global.getType(filePath) !== "String") return null;
-                            let relativeFilePath = path.join("/", filePath);
-                            let absoluteFilePath = path.join(rootData, relativeFilePath);
-                            return fs.writeFileSync(absoluteFilePath, data, {
-                                encoding
-                            });
-                        }
-                    })(pluginDataPath),
-                    removePluginDataFile: (function (rootData) {
-                        return function writePluginDataFile(filePath) {
-                            if (global.getType(filePath) !== "String") return null;
-                            let relativeFilePath = path.join("/", filePath);
-                            let absoluteFilePath = path.join(rootData, relativeFilePath);
-                            return fs.unlinkSync(absoluteFilePath);
-                        }
-                    })(pluginDataPath),
-                    dataPath: pluginDataPath,
-                    require: (pkgList => {
-                        return async function pluginRequire(pkgName) {
-                            if (require("module").builtinModules.indexOf(pkgName) + 1) {
-                                return require(pkgName);
-                            } else if (Object.prototype.hasOwnProperty.call(pkgList, pkgName)) {
-                                return loadPackage(pkgName, pkgList[pkgName]);
-                            }
-                            throw new Error("Requested module not added to plugins.json::npmPackageList");
-                        }
-                    })(pInfo.npmPackageList || {}),
-                    getPlugin: function getPluginExport(name) {
-                        let plInfo = global.plugins.loadedPlugins.find(v => v.name === name);
-                        if (!plInfo) {
-                            throw new Error("Requested plugin is not loaded");
-                        }
-
-                        return global.plugins.pluginScope[plInfo.scopeName];
-                    },
-                    checkPermission: global.checkPermission
-                });
-                global.plugins.pluginScope[pInfo.scopeName] = returnData;
-            } catch (ex) {
-                throw new LoadPluginError("Malformed JavaScript code in executable file.", {
-                    errorCode: 13,
-                    error: ex
-                });
-            }
-
-            if (
-                global.getType(returnData) === "Object" &&
-                global.getType(pInfo.defineCommand) === "Object"
-            ) {
-                for (let cmd in pInfo.defineCommand) {
-                    if (global.getType(pInfo.defineCommand[cmd].scope) !== "String") {
-                        log(`${pInfo.name}: Command "${cmd}" is missing a parameter ("scope")`);
-                        continue;
-                    }
-                    if (global.getType(pInfo.defineCommand[cmd].compatibly) !== "Array") {
-                        log(`${pInfo.name}: Command "${cmd}" is missing a parameter ("compatibly")`);
-                        continue;
-                    }
-                    if (
-                        global.getType(global.plugins.pluginScope[pInfo.scopeName]) !== "Object" || (
-                            global.getType(global.plugins.pluginScope[pInfo.scopeName][pInfo.defineCommand[cmd].scope]) !== "Function" &&
-                            global.getType(global.plugins.pluginScope[pInfo.scopeName][pInfo.defineCommand[cmd].scope]) !== "AsyncFunction"
-                        )
-                    ) {
-                        log(`${pInfo.name}: Command "${cmd}" reference to non-existing function in scope ("${pInfo.defineCommand[cmd].scope}")`);
-                        continue;
-                    }
-                    let conflictID = global.commandMapping.cmdList.findIndex(v => v === cmd);
-                    let isConflict = Boolean(conflictID + 1);
-                    let commandID = global.commandMapping.cmdList.push({
-                        originalCMD: cmd,
-                        namespacedCMD: `${pInfo.scopeName}:${cmd}`,
-                        conflict: isConflict,
-                        supportedPlatform: pInfo.defineCommand[cmd].compatibly,
-                        scope: pInfo.scopeName,
-                        exec: global.plugins.pluginScope[pInfo.scopeName][pInfo.defineCommand[cmd].scope],
-                        helpArgs: pInfo.defineCommand[cmd].helpArgs,
-                        helpDesc: pInfo.defineCommand[cmd].helpDesc,
-                        example: pInfo.defineCommand[cmd].example,
-                        showDefault: pInfo.defineCommand[cmd].showDefault ? Boolean(pInfo.defineCommand[cmd].showDefault) : true,
-                        execDefault: pInfo.defineCommand[cmd].execDefault ? Boolean(pInfo.defineCommand[cmd].execDefault) : true
-                    }) - 1;
-                    if (!isConflict) {
-                        global.commandMapping.aliases[cmd] = {
-                            pointTo: commandID,
-                            scope: pInfo.scopeName
-                        };
-                    } else {
-                        global.commandMapping.cmdList[conflictID].conflict = true;
-                    }
-                    global.commandMapping.aliases[`${pInfo.scopeName}:${cmd}`] = {
-                        pointTo: commandID,
-                        scope: pInfo.scopeName
-                    };
-                }
-            }
-            global.plugins.loadedPlugins.push({
-                name: pInfo.name,
-                scopeName: pInfo.scopeName,
-                version: pInfo.version,
-                author: pInfo.author,
-                dep: pInfo.depends || {}
-            });
-            log("Loaded plugin:", pInfo.name);
-            return { status: 0 };
-        } else throw new LoadPluginError(
-            `Executable file not found (${resolvedExecPath})`,
-            {
-                errorCode: 12,
-                resolvedExecPath
-            }
-        );
-    } else {
-        throw new LoadPluginError("File doesn't exist on that location.", { errorCode: 15 });
     }
 }
 
@@ -357,7 +89,7 @@ let unloadPlugin = async function unloadPlugin(name) {
         let scopeName = global.plugins.loadedPlugins[index].scopeName;
         let scope = global.plugins.pluginScope[scopeName];
         if (
-            global.getType(scope.onUnload) === "Function" || 
+            global.getType(scope.onUnload) === "Function" ||
             global.getType(scope.onUnload) === "AsyncFunction"
         ) {
             try {
@@ -405,7 +137,9 @@ let unloadPlugin = async function unloadPlugin(name) {
 
 let loadAllPlugin = async function loadAllPlugin(path) {
     if (fs.existsSync(path)) {
+        // Finding Type A plugin
         let pluginList = global.findFromDir(path, /^.*\.zip$/, true, false);
+
         for (let p of pluginList) {
             try {
                 await loadPlugin(p, true);
@@ -413,6 +147,7 @@ let loadAllPlugin = async function loadAllPlugin(path) {
                 log("Error while loading", p + ":", e);
             }
         }
+        sortPass2();
         for (let p2 of global.plugins.tempLoadPass2) {
             try {
                 await loadPlugin(p2.url, false);
