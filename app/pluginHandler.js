@@ -66,7 +66,7 @@ let loadPlugin = async function loadPlugin(fileDir, loadAll) {
             throw new LoadPluginError("Type B (directory) plugin is currently not supported.");
         } else if (fileInfo.isFile()) {
             let header = (await readFirstNBytes(fileDir, 512)).toString("utf8");
-            if (header.startsWith("\x04\x03\x4b\x50")) {
+            if (header.startsWith("\x50\x4b\x03\x04")) {
                 // Type A
                 return await loadPluginTypeA(fileDir, loadAll);
             }

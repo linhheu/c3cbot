@@ -54,7 +54,7 @@ module.exports = async function loadPluginTypeA(file, loadAll) {
                     return pass1 && pass2;
                 })
                 .map(v => v.entryName);
-        }, loadAll);
+        }, file, loadAll);
         if (r.status === 0) {
             global.plugins.loadedPlugins.push({
                 name: pInfo.name,
