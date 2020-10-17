@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || process.env.ACI_PORT || 3000;
 const cookieParser = require("cookie-parser");
-var expressWs = require('express-ws')(app);
+require("express-ws")(app);
 
 let Logger = require("../logging");
 let logger = new Logger("ACInterface");
@@ -65,14 +65,14 @@ app.use("/control", function checkCookie(req, res, next) {
 app.use("/control", express.static(path.join(process.cwd(), "./app/admin/default/control")));
 
 // WebSocket. Interesting... 
-app.ws('/', function (ws, req) {
+app.ws("/", function (ws, req) {
     if (validToken.indexOf(req.cookies.authToken) + 1) {
         ws.send(JSON.stringify({
             msgtype: "welcome",
             botname: process.env.BOT_NAME,
             version: "1.0.0-beta" // constant, will change later
         }));
-        ws.on('message', async function apiCall(msg) {
+        ws.on("message", async function apiCall(msg) {
             let jdata;
             try {
                 jdata = JSON.parse(msg);
@@ -107,18 +107,10 @@ app.ws('/', function (ws, req) {
     }
 });
 
-app.on("upgrade", (request, socket, head) => {
-    let cookie = cookieParser.JSONCookie(request.headers.cookie || "");
-    if (validToken.indexOf(cookie.authToken) + 1) {
-        wsServer.handleUpgrade(request, socket, head, socket => {
-            wsServer.emit("connection", socket, request);
-        });
-    } else {
-        socket.write(`HTTP/${request.httpVersion} 401 Unauthorized\n\n`);
-        socket.end();
-    }
-});
-
 app.listen(port, process.env.ACI_HOST, () => {
     log("Listening at " + (process.env.ACI_HOST || "0.0.0.0") + ":" + port);
 });
+
+app.on("error", e => {
+    log("ACI Crashed!", e);
+})
