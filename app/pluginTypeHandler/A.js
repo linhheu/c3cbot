@@ -1,5 +1,11 @@
 let AdmZip = require("adm-zip");
 let defaultFunc = require("./default");
+/** @class */
+let LoadPluginError = global.LoadPluginError;
+let Logger = require("./logging");
+let fs = require("fs");
+let logger = new Logger("PluginHandler");
+let log = logger.log.bind(logger);
 
 module.exports = async function loadPluginTypeA(file, loadAll) {
     if (fs.existsSync(file)) {
@@ -44,7 +50,7 @@ module.exports = async function loadPluginTypeA(file, loadAll) {
                 .filter(v => {
                     let n = v.entryName;
                     let pass1 = n.startsWith(path);
-                    let pass2 = recursive || (n.split("/").length == dir.split("/").length);
+                    let pass2 = recursive || (n.split("/").length == path.split("/").length);
                     return pass1 && pass2;
                 })
                 .map(v => v.entryName);

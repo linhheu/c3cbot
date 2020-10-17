@@ -1,9 +1,15 @@
 let sanitizer = require("sanitize-filename");
-let loadPackage = require("./npmHandler");
+let loadPackage = require("../npmHandler");
 let semver = require("semver");
 let path = require("path");
+/** @class */
+let LoadPluginError = global.LoadPluginError;
+let Logger = require("./logging");
+let fs = require("fs");
+let logger = new Logger("PluginHandler");
+let log = logger.log.bind(logger);
 
-module.exports = async function resolveData(file, pInfo, getPFile, getPDir, loadAll) {
+module.exports = async function resolveData(file, pInfo, getPFile, getPDir, pDir, loadAll) {
     // Check for plugin parameters
     if (global.getType(pInfo.name) !== "String")
         throw new LoadPluginError("Plugin name must be a string.", { errorCode: 101 });
@@ -90,7 +96,7 @@ module.exports = async function resolveData(file, pInfo, getPFile, getPDir, load
     if (global.getType(executable) === "String") {
         let onLoad = null;
         try {
-            onLoad = global.requireFromString(executable, resolvedExecPath);
+            onLoad = global.requireFromString(executable, pDir);
             if (
                 global.getType(onLoad) !== "Function" &&
                 global.getType(onLoad) !== "AsyncFunction"
@@ -238,10 +244,10 @@ module.exports = async function resolveData(file, pInfo, getPFile, getPDir, load
         }
         return { status: 0 };
     } else throw new LoadPluginError(
-        `Executable file not found (${resolvedExecPath})`,
+        `Executable file not found (${pInfo.execFile})`,
         {
             errorCode: 110,
-            resolvedExecPath
+            resolvedExecPath: pInfo.execFile
         }
     );
 }

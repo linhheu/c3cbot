@@ -3,13 +3,13 @@ let Logger = require("./logging");
 let logger = new Logger("PluginHandler");
 let log = logger.log.bind(logger);
 
-
 class LoadPluginError extends Error {
     constructor(str, obj) {
         super(str);
         Object.assign(this, obj);
     }
 }
+global.LoadPluginError = LoadPluginError;
 
 async function readFirstNBytes(path, n) {
     const chunks = [];
@@ -169,6 +169,5 @@ module.exports = {
     loadPlugin,
     loadAllPlugin,
     unloadPlugin,
-    unloadAllPlugin,
-    LoadPluginError
+    unloadAllPlugin
 }
