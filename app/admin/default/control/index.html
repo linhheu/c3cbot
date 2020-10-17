@@ -10,6 +10,8 @@
     <script src="/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="/css/control.css">
 
+    <script src="/js/vue.js"></script>
+
     <!-- ICON SET -->
     <script src="https://kit.fontawesome.com/91ccb345af.js" crossorigin="anonymous"></script>
     <script src="/control/mainjs.js"></script>
@@ -24,6 +26,18 @@
                 <img src="/image/logo.svg" alt="C3CLOGO">
                 <span class="text-collapsable">C3CBOT</span>
             </div>
+            <div class="item" onclick="triggerPage('overview')">
+                <span class="item-icon">
+                    <i class="fas fa-list-alt"></i>
+                    <span class="text-collapsable">Overview</span>
+                </span>
+            </div>
+            <div class="item" onclick="triggerPage('interface')">
+                <span class="item-icon">
+                    <i class="fab fa-discord"></i>
+                    <span class="text-collapsable">Interface</span>
+                </span>
+            </div>
         </div>
         <div class="main">
             <div class="head m-head">
@@ -31,6 +45,7 @@
                     <i class="fas fa-bars"></i>
                 </span>
             </div>
+            <div class="content">{{ pagecontent }}</div>
         </div>
     </div>
 </body>

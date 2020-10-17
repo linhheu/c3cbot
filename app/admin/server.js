@@ -1,15 +1,17 @@
 const path = require("path");
-const WebSocket = require("ws");
 
 const express = require("express");
 const app = express();
 const port = process.env.PORT || process.env.ACI_PORT || 3000;
 const cookieParser = require("cookie-parser");
+var expressWs = require('express-ws')(app);
 
 let Logger = require("../logging");
 let logger = new Logger("ACInterface");
 /** @type {Function} */
 let log = logger.log.bind(logger);
+
+let apiHandler = require("./api");
 
 let validToken = [];
 
@@ -63,23 +65,46 @@ app.use("/control", function checkCookie(req, res, next) {
 app.use("/control", express.static(path.join(process.cwd(), "./app/admin/default/control")));
 
 // WebSocket. Interesting... 
-let wsServer = new WebSocket.Server({ noServer: true });
-wsServer.on("connection", function (socket) {
-    socket.on("message", async function apiCall(data) {
-        let jdata;
-        try {
-            jdata = JSON.parse(data);
-        } catch (_) {
-            socket.terminate();
-            return;
-        }
+app.ws('/', function (ws, req) {
+    if (validToken.indexOf(req.cookies.authToken) + 1) {
+        ws.send(JSON.stringify({
+            msgtype: "welcome",
+            botname: process.env.BOT_NAME,
+            version: "1.0.0-beta" // constant, will change later
+        }));
+        ws.on('message', async function apiCall(msg) {
+            let jdata;
+            try {
+                jdata = JSON.parse(msg);
+            } catch (_) {
+                ws.terminate();
+                return;
+            }
 
-        if (validToken.indexOf(jdata.authToken) + 1) {
-            // insert api handler here
-        } else {
-            socket.send(JSON.stringify({ error: "Not logged in", errorCode: 1 }));
-        }
-    });
+            if (validToken.indexOf(jdata.authToken) + 1) {
+                switch (jdata.opcode) {
+                    case 0x00: // Ping
+                        ws.send(JSON.stringify({
+                            msgtype: "response",
+                            nonce: jdata.nonce,
+                            ping: true
+                        }));
+                        break;
+                    default:
+                        ws.send(apiHandler(jdata));
+                }
+            } else {
+                ws.send(JSON.stringify({
+                    msgtype: "error",
+                    error: "authToken not found.",
+                    errorCode: 1,
+                    nonce: jdata.nonce
+                }));
+            }
+        });
+    } else {
+        ws.terminate();
+    }
 });
 
 app.on("upgrade", (request, socket, head) => {

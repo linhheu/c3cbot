@@ -36,6 +36,30 @@ body {
     /* border-bottom: 1px solid black; */
 }
 
+.item {
+    height: calc(var(--header-height) * 0.75);
+    max-height: calc(var(--header-height) * 0.75);
+    min-height: calc(var(--header-height) * 0.75);
+    cursor: pointer;
+}
+
+.item:nth-child(even) {
+    background-color: #bfbfec;
+}
+
+.item:nth-child(odd) {
+    background-color: #9fff9f;
+}
+
+.item-icon {
+    height: calc(var(--header-height) * 0.75);
+    width: calc(var(--header-height) * 0.75);
+    font-size: calc(var(--header-height) * 0.65 * 0.75);
+    padding-left: calc(var(--header-height) * 0.35 / 2);
+    padding-right: calc(var(--header-height) * 0.35 / 2);
+}
+
+
 .s-head {
     background-color: #BBFFBB;
 }
@@ -63,4 +87,5 @@ body {
     font-size: calc(var(--header-height) * 0.65);
     padding-left: calc(var(--header-height) * 0.35 / 2);
     padding-right: calc(var(--header-height) * 0.35 / 2);
+    cursor: pointer;
 }

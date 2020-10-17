@@ -14,7 +14,7 @@ function showOrHideSideBar() {
                 "width": hh,
                 "min-width": hh,
                 "max-width": hh
-            }, 400, "swing", function complete() { 
+            }, 400, "swing", function complete() {
                 pendingSidebarClose = false;
             });
         } else {
@@ -23,7 +23,7 @@ function showOrHideSideBar() {
                 "width": og,
                 "min-width": og,
                 "max-width": og
-            }, 400, "swing", function complete() { 
+            }, 400, "swing", function complete() {
                 $(".text-collapsable").show();
                 pendingSidebarClose = false;
             });
@@ -31,6 +31,35 @@ function showOrHideSideBar() {
     }
 }
 
+function fetchWSAPI() {
+    var loc = window.location, new_uri;
+    if (loc.protocol === "https:") {
+        new_uri = "wss:";
+    } else {
+        new_uri = "ws:";
+    }
+    new_uri += "//" + loc.host;
+    new_uri += "/";
+
+    window.WSAPI = new WebSocket(new_uri);
+    window.WSAPI.onerror = function onError(e) {
+        console.log("Connection dropped. Reconnecting...");
+        delete window.WSAPI;
+        fetchWSAPI();
+    }
+}
+
+fetchWSAPI();
+
 window.onload = async function lul() {
     og = getComputedStyle($(".sidebar")[0]).getPropertyValue('--width').trim();
+
+    window.app = new Vue({
+        el: ".content",
+        data: {
+            pagecontent: ""
+        }
+    })
+
+    triggerPage("overview");
 }
