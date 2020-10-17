@@ -2,7 +2,7 @@ let AdmZip = require("adm-zip");
 let defaultFunc = require("./default");
 /** @class */
 let LoadPluginError = global.LoadPluginError;
-let Logger = require("./logging");
+let Logger = require("../logging");
 let fs = require("fs");
 let logger = new Logger("PluginHandler");
 let log = logger.log.bind(logger);
