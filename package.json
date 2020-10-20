@@ -32,7 +32,7 @@
     "bufferutil": "^4.0.1",
     "cookie-parser": "^1.4.5",
     "custom-env": "^2.0.1",
-    "discord.js": "^12.3.1",
+    "discord.js": "^12.4.0",
     "dotenv": "^8.2.0",
     "erlpack": "github:discordapp/erlpack",
     "express": "^4.17.1",
