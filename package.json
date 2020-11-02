@@ -29,7 +29,7 @@
     "@discordjs/opus": "^0.3.2",
     "adm-zip": "^0.4.16",
     "buffer-json": "^2.0.0",
-    "bufferutil": "^4.0.1",
+    "bufferutil": "^4.0.2",
     "cookie-parser": "^1.4.5",
     "custom-env": "^2.0.1",
     "discord.js": "^12.4.0",
