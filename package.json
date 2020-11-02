@@ -42,7 +42,7 @@
     "sanitize-filename": "^1.6.3",
     "semver": "^7.3.2",
     "ssh2": "^0.8.9",
-    "utf-8-validate": "^5.0.2",
+    "utf-8-validate": "^5.0.3",
     "wait-for-stuff": "^1.4.0",
     "ws": "^7.3.1",
     "zlib-sync": "^0.1.7"
